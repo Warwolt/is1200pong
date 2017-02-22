@@ -10,6 +10,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of hardware-specific addresses etc */
+#include <math.h>     /* Trigonometric functions */
+
 
 /* Defines -------------------------------------------------------------------*/
 /* Macros for display control pins */
@@ -33,11 +35,19 @@
 #define CMD_SET_COM_SCAN_REMAP			(uint8_t)0xC8
 #define CMD_SET_COM_PIN_CONFIG			(uint8_t)0xDA
 #define CMD_SEQ_COM_LEFTRIGHT_REMAP		(uint8_t)0x20
+#define	CMD_SET_PAGE_ADDRESS			(uint8_t)0x22
+/* Math */
+#define PI 								3.14159	
 
 /* Function prototypes -------------------------------------------------------*/
+/* Hardware abstractions */
+void display_set_pixel(uint8_t x, uint8_t y);
+void display_draw_cos(uint32_t period, uint32_t phase);
+void display_clear_screen(void);
 /* Device drivers */
 void init_display(void);
 void clear_display(void);
+void update_display(void);
 /* Helper functions */
 void quicksleep(int cyc);
 uint8_t spi_send_recv(uint8_t data);

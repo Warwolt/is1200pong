@@ -17,18 +17,24 @@ int main(void)
 	/* Initialization */
 	init_mcu();
 	init_display();
+	clear_display();
 
-	/* Periodic work */
+	/* draw a cosine, just for fun */
 	while(1)
 	{
-		// do something here 
+		uint32_t i = 0;
+		for(i = 0; i < 128; i++)
+		{
+			display_clear_screen();
+			display_draw_cos(128-i, 0);	
+			update_display();
+			quicksleep(100000);
+		}
 	}
-
 	return 0;
 }
 
 /* Low level initialization of microcontroller */
-// todo: clean up this function and remove stuff that isn't used right now
 void init_mcu(void)
 {
 	/* Set up peripheral bus clock */
