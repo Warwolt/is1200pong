@@ -42,6 +42,7 @@
 /* Function prototypes -------------------------------------------------------*/
 /* Hardware abstractions */
 void display_set_pixel(uint8_t x, uint8_t y);
+void display_draw_rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
 void display_draw_cos(uint32_t period, uint32_t phase);
 void display_clear_screen(void);
 /* Device drivers */
