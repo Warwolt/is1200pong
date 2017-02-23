@@ -7,6 +7,12 @@
 ********************************************************************************
 */
 
+/* 	TODO:
+ * [ ]	Check that border clipping on display_draw_rect works
+ * [ ]	Check that LED works using the pic32mx.h address defines 
+ * [ ] 	Configure hardware for analog inputs 
+ */
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
@@ -18,38 +24,12 @@ int main(void)
 	init_mcu();
 	led_write(0x1); // signal bootup
 	init_display();
-	clear_display();
 	led_write(0x0); // bootup done
 
-	/* draw rectangle as a test */
-	int8_t xoffs = 64-1;
-	int8_t yoffs = 16-1;
-	int8_t width = 4;
-	int8_t height = 4;
-	int8_t dx = 2;
-	int8_t  dy = -1;	
+	/* Run demos */
 	while(1)
 	{
-		/* Draw step */
-		display_clear_screen();
-		// draw lines
-		display_draw_rect(126,0,127,31); 
-		display_draw_rect(0,0,1,31);	 
-		// draw ball
-		display_draw_rect(xoffs, yoffs, xoffs+width, yoffs+height);
-		// render 
-		update_display();	
-		quicksleep(100000);
-
-		/* Update step */
-		// change position
-		xoffs += dx;
-		yoffs += dy;
-		// bounce against sides of screen
-		if(xoffs+width >= 127 | xoffs <= 1)
-			dx = -dx;
-		if(yoffs+height >= 31 | yoffs <= 0)
-			dy = -dy;		
+		demo_bouncing_ball();
 	}
 
 	return 0;
@@ -97,11 +77,37 @@ void user_isr(void)
 /* Turn LED7 to LED0 on or off, bits in write_data specifies LED states */
 void led_write(uint8_t write_data)
 {
-  /* Pointer to PORTE register */
-  volatile uint32_t *porte = (volatile uint32_t*) 0xbf886110;
-
   /* Modify state of LEDs */
-  *(porte+1) = ~(write_data);  // write zeros using PORTECLR 
-  *(porte+2) =  (write_data);  // write ones using PORTESET 
+  PORTECLR = ~(write_data);	// write zeros of write_data
+  PORTESET = (write_data);	// write ones  of write_data
   return;
+}
+
+/* Brief  : Demo of display.c functions, bounces a rectangle ball against the
+ * 			sides of the screen and draws to lines at each side.
+ * Author : Rasmus Kallqvist */
+void demo_bouncing_ball(void)
+{
+	int8_t width = 4;
+	int8_t height = 4;
+	static int8_t xoffs = 64-1;
+	static int8_t yoffs = 16-1;
+	static int8_t dx = 2;
+	static int8_t dy = -1;	
+
+	/* Draw step */
+	display_cls();
+	display_draw_rect(126,0,127,31); // draw left right
+	display_draw_rect(0,0,1,31);	 // draw left line
+	display_draw_rect(xoffs, yoffs, xoffs+width, yoffs+height); // draw ball
+	display_update();	
+	quicksleep(100000);
+
+	/* Update step */
+	xoffs += dx;
+	yoffs += dy;
+	if(xoffs+width >= 127 | xoffs <= 1)
+		dx = -dx;
+	if(yoffs+height >= 31 | yoffs <= 0)
+		dy = -dy;		
 }

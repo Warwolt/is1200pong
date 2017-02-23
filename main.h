@@ -7,9 +7,14 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "display.h"
+#include "display.h"  /* OLED display device drivers and draw functions */
+#include <pic32mx.h>  /* Declarations of hardware-specific addresses etc */
 
 /* Function prototypes -------------------------------------------------------*/
 void user_isr(void);
 void init_mcu(void);
+/* Peripherals */
 void led_write(uint8_t write_data);
+/* Demos */
+void demo_bouncing_ball(void);
+void demo_cycling_cosine(void);

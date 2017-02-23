@@ -20,9 +20,9 @@ static uint8_t screen_content[128][4];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display. 
- *          The display is comprised of a sequency of 8 pixel high columns, so
- *          we have to translate a given y coordinate to two components, the 
- *          byte to write to and then the offset within a given byte.
+ *          The display is comprised of a sequence of 8 pixel high columns, so
+ *          we have to translate a given y coordinate into two components, what 
+ *          byte to write to and the bit offset within the given byte.
  * Author : Rasmus Kallqvist */
 void display_set_pixel(uint8_t x, uint8_t y)
 {
@@ -30,7 +30,7 @@ void display_set_pixel(uint8_t x, uint8_t y)
     uint8_t byte_select = (y - bit_offset) / 8;
 
     /* Check if valid coordinates */
-    if(x < 0 | x > 127 | y < 0 | y > 31)
+    if(x < 0 || x > 127 || y < 0 || y > 31)
         return;
 
     /* Copy to screen */
@@ -39,31 +39,37 @@ void display_set_pixel(uint8_t x, uint8_t y)
     return;
 }
 
+
 /* Brief  : Draws a rectangle with top left corner in (x0,y0) and lower 
- *          right corner in (x1, y1).
+ *          right corner in (x1, y1). If either corner is out of the screen
+ *          boundrary, only part of the rectangle will be drawn.
  * Author : Rasmus Kallqvist */
-void display_draw_rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
+// TODO: check if window clipping works, ie ability to draw a rectangle that
+// is partially off-screen by only adding visible part to screen
+void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 {
     uint8_t width = x1 - x0;
     uint8_t height = y1 - y0;
     uint8_t i, j;
 
-    /* Check if valid width and height */
-    if(x1 < x0 | y1 < y0)
+    /* Check that width and height is non-negative */
+    if(x1 < x0 || y1 < y0)
         return;
 
    /* Draw rectangle to screen */
-    for(i = x0; i < x0 + width; i++)
+    for(i = x0; (i < (x0+width)) && (i < DP_WIDTH); i++)
     {
-        for(j = y0; j < y0 + height; j++)
+        for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
         {
-            display_set_pixel(i,j);
+            //if(i >= 0 && j >= 0)
+                display_set_pixel(i,j);                        
         }
     }
 }
 
 
-/* Brief  : Draw a cosine with period and phase determined by arguments 
+/* Brief  : Draw a cosine wave with period and phase determined by arguments.
+ *          Period is measured in pixels, the phase in degrees.
  * Author : Rasmus Kallqvist */
 void display_draw_cos(uint32_t period, uint32_t phase)
 {
@@ -82,13 +88,14 @@ void display_draw_cos(uint32_t period, uint32_t phase)
     }
 }
 
+
 /* Brief  : Sets each byte in the screen to zero
  * Author : Rasmus Kallqvist */
-void display_clear_screen(void)
+void display_cls(void)
 {
-  uint8_t i, j;
-  for(i = 0; i < 4; i++)
-  {
+    uint8_t i, j;
+    for(i = 0; i < 4; i++)
+    {
         for(j = 0; j < 128; j++)
         {
             screen_content[j][i] = 0x00;
@@ -97,7 +104,7 @@ void display_clear_screen(void)
 }
 
 /* Brief  : Performs low level initiation of the i/o shield OLED-display 
- * Author : Original code by Fredrik Lundeval / Axel Isaksson 
+ * Author : Original code by Fredrik Lundeval / Axel Isaksson / Diligent corp
  *          Display command macros and some comments by Rasmus Kallqvist */
 void init_display(void) 
 {
@@ -134,6 +141,10 @@ void init_display(void)
 
     /* Turn on display */  
     spi_send_recv(CMD_DISPLAY_ON);    
+
+    /* Clear out graphic RAM */
+    display_cls();
+    display_update();
 }
 
 
@@ -172,7 +183,7 @@ void clear_display(void)
 /* Brief  : Writies the contents of screen_content to the display graphic ram. 
  *          To change screen_content contents, use display_set_pixel(). 
  * Author : Rasmus Kallqvist */
-void update_display(void)
+void display_update(void)
 {
     uint8_t cur_page;
     uint8_t cur_col;
@@ -212,6 +223,7 @@ void quicksleep(int cyc)
     int i;
     for(i = cyc; i > 0; i--);
 }
+
 
 /* Brief  : send/receive one byte over spi connected to the i/o shield display
  * Author : Fredrik Lundeval / Axel Isaksson */

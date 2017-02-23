@@ -12,7 +12,6 @@
 #include <pic32mx.h>  /* Declarations of hardware-specific addresses etc */
 #include <math.h>     /* Trigonometric functions */
 
-
 /* Defines -------------------------------------------------------------------*/
 /* Macros for display control pins */
 #define DISPLAY_CHANGE_TO_COMMAND_MODE 	(PORTFCLR = 0x10)
@@ -36,19 +35,22 @@
 #define CMD_SET_COM_PIN_CONFIG			(uint8_t)0xDA
 #define CMD_SEQ_COM_LEFTRIGHT_REMAP		(uint8_t)0x20
 #define	CMD_SET_PAGE_ADDRESS			(uint8_t)0x22
+/* Display properties */
+#define DP_WIDTH						128
+#define DP_HEIGHT						32
 /* Math */
 #define PI 								3.14159	
+
 
 /* Function prototypes -------------------------------------------------------*/
 /* Hardware abstractions */
 void display_set_pixel(uint8_t x, uint8_t y);
-void display_draw_rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
+void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1);
 void display_draw_cos(uint32_t period, uint32_t phase);
-void display_clear_screen(void);
+void display_cls(void);
 /* Device drivers */
 void init_display(void);
-void clear_display(void);
-void update_display(void);
+void display_update(void);
 /* Helper functions */
 void quicksleep(int cyc);
 uint8_t spi_send_recv(uint8_t data);
