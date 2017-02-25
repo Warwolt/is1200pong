@@ -153,6 +153,7 @@ void init_display(void)
 
 /* Brief  : Clears the display by writing all zeroes to graphic ram
  * Author : Rasmus Kallqvist */
+// Hej Michel, samtidigt som michel sa hej till Rasmus. 
 void clear_display(void)
 {
     uint8_t cur_page;
