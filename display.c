@@ -3,12 +3,14 @@
 * name   :  display.c
 * author :  Rasmus Kallqvist, 2017-02-21
 *           Original code by Fredrik Lundeval and Axel Isaksson, 2015
-* brief  :  Contains driver for interfacing with and initialize the chipkit 
-*           uno32 basic i/o shield oled display. For more information about the 
+* brief  :  Contains driver for interfacing with and initialize the chipkit
+*           uno32 basic i/o shield oled display. For more information about the
 *           display, see reference manual for SSD1306 display controller and
 *           reference document for the chipkit i/o shield.
 * note   :  In this file, "display" refers to the i/o shield hardware display,
 *           and "screen" refers to the software representation of that display.
+
+Hej Rasmus!
 ********************************************************************************
 */
 
@@ -19,9 +21,9 @@
 static uint8_t screen_content[128][4];
 
 /* Function definitions ------------------------------------------------------*/
-/* Brief  : Sets a single pixel in the byte-representation of the oled display. 
+/* Brief  : Sets a single pixel in the byte-representation of the oled display.
  *          The display is comprised of a sequence of 8 pixel high columns, so
- *          we have to translate a given y coordinate into two components, what 
+ *          we have to translate a given y coordinate into two components, what
  *          byte to write to and the bit offset within the given byte.
  * Author : Rasmus Kallqvist */
 void display_set_pixel(uint8_t x, uint8_t y)
@@ -40,7 +42,7 @@ void display_set_pixel(uint8_t x, uint8_t y)
 }
 
 
-/* Brief  : Draws a rectangle with top left corner in (x0,y0) and lower 
+/* Brief  : Draws a rectangle with top left corner in (x0,y0) and lower
  *          right corner in (x1, y1). If either corner is out of the screen
  *          boundrary, only part of the rectangle will be drawn.
  * Author : Rasmus Kallqvist */
@@ -62,7 +64,7 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
         for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
         {
             //if(i >= 0 && j >= 0)
-                display_set_pixel(i,j);                        
+                display_set_pixel(i,j);
         }
     }
 }
@@ -78,7 +80,7 @@ void display_draw_cos(uint32_t period, uint32_t phase)
 
     /* Wrap around negative phase */
     phase = (360 + phase) % 360;
-    
+
     /* Draw cosine wave to screen */
     for(x = 0; x < 128; x++)
     {
@@ -103,10 +105,10 @@ void display_cls(void)
     }
 }
 
-/* Brief  : Performs low level initiation of the i/o shield OLED-display 
+/* Brief  : Performs low level initiation of the i/o shield OLED-display
  * Author : Original code by Fredrik Lundeval / Axel Isaksson / Diligent corp
  *          Display command macros and some comments by Rasmus Kallqvist */
-void init_display(void) 
+void init_display(void)
 {
     /* Apply power to display controller (VDD) */
     DISPLAY_CHANGE_TO_COMMAND_MODE;
@@ -116,31 +118,31 @@ void init_display(void)
 
     /* Turn off display */
     spi_send_recv(CMD_DISPLAY_OFF);
-    DISPLAY_ACTIVATE_RESET;     
-    quicksleep(10);             
-    DISPLAY_DO_NOT_RESET;       
-    quicksleep(10);              
+    DISPLAY_ACTIVATE_RESET;
+    quicksleep(10);
+    DISPLAY_DO_NOT_RESET;
+    quicksleep(10);
 
     /* Enable 7.5 V to display */
-    spi_send_recv(CMD_SET_CHARGE_PUMP);        
-    spi_send_recv(CMD_ENABLE_CHARGE_PUMP);     
-    spi_send_recv(CMD_SET_PRECHARGE_PERIOD);   
-    spi_send_recv(CMD_CHARGE_PHASE1(1) | CMD_CHARGE_PHASE2(15)); 
+    spi_send_recv(CMD_SET_CHARGE_PUMP);
+    spi_send_recv(CMD_ENABLE_CHARGE_PUMP);
+    spi_send_recv(CMD_SET_PRECHARGE_PERIOD);
+    spi_send_recv(CMD_CHARGE_PHASE1(1) | CMD_CHARGE_PHASE2(15));
 
     /* Apply power display (VBAT) */
     DISPLAY_ACTIVATE_VBAT;
-    quicksleep(10000000);   
+    quicksleep(10000000);
 
     /* Set COM output and scan direction */
-    spi_send_recv(CMD_SET_SEGMENT_REMAP);        
-    spi_send_recv(CMD_SET_COM_SCAN_REMAP);       
+    spi_send_recv(CMD_SET_SEGMENT_REMAP);
+    spi_send_recv(CMD_SET_COM_SCAN_REMAP);
 
     /* Set COM pins */
-    spi_send_recv(CMD_SET_COM_PIN_CONFIG);       
-    spi_send_recv(CMD_SEQ_COM_LEFTRIGHT_REMAP);  
+    spi_send_recv(CMD_SET_COM_PIN_CONFIG);
+    spi_send_recv(CMD_SEQ_COM_LEFTRIGHT_REMAP);
 
-    /* Turn on display */  
-    spi_send_recv(CMD_DISPLAY_ON);    
+    /* Turn on display */
+    spi_send_recv(CMD_DISPLAY_ON);
 
     /* Clear out graphic RAM */
     display_cls();
@@ -148,7 +150,7 @@ void init_display(void)
 }
 
 
-/* Brief  : Clears the display by writing all zeroes to graphic ram 
+/* Brief  : Clears the display by writing all zeroes to graphic ram
  * Author : Rasmus Kallqvist */
 void clear_display(void)
 {
@@ -176,12 +178,12 @@ void clear_display(void)
         {
           spi_send_recv(0x0);
         }
-    } 
+    }
 }
 
 
-/* Brief  : Writies the contents of screen_content to the display graphic ram. 
- *          To change screen_content contents, use display_set_pixel(). 
+/* Brief  : Writies the contents of screen_content to the display graphic ram.
+ *          To change screen_content contents, use display_set_pixel().
  * Author : Rasmus Kallqvist */
 void display_update(void)
 {
@@ -208,17 +210,17 @@ void display_update(void)
         /* Set each column in page to zero */
         for(cur_col = 0; cur_col < 128; cur_col++)
         {
-          data_byte = screen_content[cur_col][cur_page]; 
+          data_byte = screen_content[cur_col][cur_page];
           spi_send_recv(data_byte);
         }
-    } 
+    }
 }
 
 
-/* Brief  : a simple function to create a small delay. Very inefficient use of 
+/* Brief  : a simple function to create a small delay. Very inefficient use of
  *          computing resources, but very handy in some special cases.
  * Author : Fredrik Lundeval / Axel Isaksson */
-void quicksleep(int cyc) 
+void quicksleep(int cyc)
 {
     int i;
     for(i = cyc; i > 0; i--);
@@ -227,7 +229,7 @@ void quicksleep(int cyc)
 
 /* Brief  : send/receive one byte over spi connected to the i/o shield display
  * Author : Fredrik Lundeval / Axel Isaksson */
-uint8_t spi_send_recv(uint8_t data) 
+uint8_t spi_send_recv(uint8_t data)
 {
     while(!(SPI2STAT & 0x08));
     SPI2BUF = data;
