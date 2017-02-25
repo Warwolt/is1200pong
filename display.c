@@ -11,6 +11,7 @@
 *           and "screen" refers to the software representation of that display.
 
 Hej Rasmus!
+Hej Michel! Nu är vi syncade.
 ********************************************************************************
 */
 
