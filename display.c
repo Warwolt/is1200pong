@@ -9,9 +9,6 @@
 *           reference document for the chipkit i/o shield.
 * note   :  In this file, "display" refers to the i/o shield hardware display,
 *           and "screen" refers to the software representation of that display.
-
-Hej Rasmus!
-Hej Michel! Nu är vi syncade.
 ********************************************************************************
 */
 
@@ -153,7 +150,6 @@ void init_display(void)
 
 /* Brief  : Clears the display by writing all zeroes to graphic ram
  * Author : Rasmus Kallqvist */
-// Hej Michel, samtidigt som michel sa hej till Rasmus. 
 void clear_display(void)
 {
     uint8_t cur_page;
@@ -238,5 +234,3 @@ uint8_t spi_send_recv(uint8_t data)
     while(!(SPI2STAT & 1));
     return SPI2BUF;
 }
-
-//hej Rasmus, samtidigt blalaa
