@@ -11,6 +11,7 @@
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of hardware-specific addresses etc */
 #include <math.h>     /* Trigonometric functions */
+#include "font.h"	  /* Defines a bitmap font */
 
 /* Defines -------------------------------------------------------------------*/
 /* Macros for display control pins */
@@ -41,10 +42,13 @@
 /* Math */
 #define PI 								3.14159	
 
+/* Local variables -----------------------------------------------------------*/
+static char textbuffer[4][16];
 
 /* Function prototypes -------------------------------------------------------*/
 /* Hardware abstractions */
 void display_set_pixel(uint8_t x, uint8_t y);
+void display_print(int page, char *s);
 void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1);
 void display_draw_cos(uint32_t period, uint32_t phase);
 void display_cls(void);

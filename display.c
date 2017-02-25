@@ -67,6 +67,28 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     }
 }
 
+/* Brief  : (something about adding text to a buffer? clear this up!)
+ * Author : Fredrik Lundeval / Axel Isaksson */
+void display_print(int page, char *s) 
+{
+    int i;
+
+    /* Check if withing display boundry*/
+    if(page < 0 || page > 3)
+        return;
+    /* Check if null pointer */
+    if(!s)
+        return;
+    
+    /* Copy string contents to text buffer */
+    for(i = 0; i < 16; i++)
+        if(*s) {
+            textbuffer[page][i] = *s;
+            s++;
+        } else
+            textbuffer[page][i] = ' ';
+}
+
 
 /* Brief  : Draw a cosine wave with period and phase determined by arguments.
  *          Period is measured in pixels, the phase in degrees.
@@ -102,6 +124,9 @@ void display_cls(void)
         }
     }
 }
+
+
+/* Driver functions */
 
 /* Brief  : Performs low level initiation of the i/o shield OLED-display
  * Author : Original code by Fredrik Lundeval / Axel Isaksson / Diligent corp
@@ -189,6 +214,7 @@ void display_update(void)
     uint8_t cur_col;
     uint8_t data_byte;
 
+    /* Display screen graphic contents */
     for(cur_page = 0; cur_page < 4; cur_page++)
     {
         DISPLAY_CHANGE_TO_COMMAND_MODE;
@@ -214,6 +240,8 @@ void display_update(void)
     }
 }
 
+
+/* Helper functions */
 
 /* Brief  : a simple function to create a small delay. Very inefficient use of
  *          computing resources, but very handy in some special cases.

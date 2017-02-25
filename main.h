@@ -11,6 +11,7 @@
 #include "input.h"		/* Read potentiometer and buttons values */
 #include <pic32mx.h>	/* Declarations of hardware-specific addresses etc */
 
+
 /* Function prototypes -------------------------------------------------------*/
 void user_isr(void);
 void init_mcu(void);

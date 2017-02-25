@@ -45,7 +45,7 @@ uint16_t input_get_analog(uint8_t pin)
 
 /* 	Brief	: Initialize the ADC peripheral
 	Author	: Original code by Axel Isaksson, edited by Rasmus Kallqvist */
-void adc_init(void)
+void init_adc(void)
 {
 	/* Set up LED pins as outputs */
 	TRISECLR = 0xFF;
