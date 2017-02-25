@@ -240,6 +240,34 @@ void display_update(void)
     }
 }
 
+/* This is the hackiest shit ever. don't use this for anything other than 
+deverlop testing and stuff! Written by Fredrik / Axel */
+void display_show_text(void)
+{
+    int i, j, k;
+    int c;
+    for(i = 0; i < 4; i++) {
+        DISPLAY_CHANGE_TO_COMMAND_MODE;
+        spi_send_recv(0x22);
+        spi_send_recv(i);
+        
+        spi_send_recv(0x0);
+        spi_send_recv(0x10);
+        
+        DISPLAY_CHANGE_TO_DATA_MODE;
+        
+        for(j = 0; j < 16; j++) {
+            c = textbuffer[i][j];
+            if(c & 0x80)
+                continue;
+            
+            for(k = 0; k < 8; k++)
+                spi_send_recv(font[c*8 + k]);
+        }
+    }
+}
+
+
 
 /* Helper functions */
 
