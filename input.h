@@ -8,7 +8,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <pic32mx.h>	/* Declarations of hardware-specific addresses etc */
-#include <stdint.h>		/* Containts uint32_t and the like */
+#include <stdint.h>     /* Contains uint32_t and the like */
 
 /* Function prototypes -------------------------------------------------------*/
 uint16_t input_get_analog(uint8_t pin);
