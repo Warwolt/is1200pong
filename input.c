@@ -5,7 +5,7 @@
 *			Some original code by Axel Isaksson, 2015
 * brief  : 	Header file for main.c
 *
-* 	Pin nr		PORT bit nr 
+* 	Pin nr		PORT bit nr
 * 	------		-----------
 * 	A0			B2
 * 	A1			B4
@@ -25,7 +25,7 @@ static uint8_t analog_pin_nr[6] = {2, 4, 8, 10, 12, 14};
 
 
 /* Function definitions ------------------------------------------------------*/
-/* 	Brief	: Get sampled analog input values 
+/* 	Brief	: Get sampled analog input values
 	Author	: Rasmus Kallqvist / Axel Isaksson */
 uint16_t input_get_analog(uint8_t pin)
 {
@@ -45,11 +45,11 @@ uint16_t input_get_analog(uint8_t pin)
 
 /* 	Brief	: Initialize the ADC peripheral
 	Author	: Original code by Axel Isaksson, edited by Rasmus Kallqvist */
-void adc_init(void)
+void init_adc(void)
 {
 	/* Set up LED pins as outputs */
 	TRISECLR = 0xFF;
-	
+
 	/* Enable analog input A0, Port B pin 2 */
 	AD1PCFGCLR = ~(0x1 << 2);
 	TRISBSET   =  (0x1 << 2);
@@ -57,7 +57,7 @@ void adc_init(void)
 	/* Enable analog input A1, Port B pin 4 */
 	AD1PCFGCLR = ~(0x1 << 4);
 	TRISBSET   =  (0x1 << 4);
-	
+
 	/* Data format in uint32, 0 - 1023
 	Manual sampling, auto conversion when sampling is done
 	FORM = 0x4; SSRC = 0x7; CLRASAM = 0x0; ASAM = 0x0; */
