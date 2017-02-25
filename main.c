@@ -22,9 +22,11 @@ int main(void)
 {
 	/* Initialization */
 	init_mcu();
-	led_write(0x1); // signal bootup
+
+	led_write(0x3); // signal bootup
+	init_adc();
 	init_display();
-	led_write(0x0); // bootup done
+	led_write(0x1); // bootup done
 
 	/* Run demos */
 	while(1)
