@@ -1,7 +1,7 @@
 /*
 ********************************************************************************
 * name	 : 	main.c
-* author : 	Rasmus Kallqvist, 2017-02-21
+* author : 	Rasmus Kallqvist, Michel Bitar (c) 2017
 *		   	Original code by Fredrik Lundeval and Axel Isaksson, 2015
 * brief  : 	Main function for pong game on chipkit uno32 microcontroller
 ********************************************************************************
