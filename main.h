@@ -17,4 +17,6 @@ void init_mcu(void);
 void led_write(uint8_t write_data);
 /* Demos */
 void demo_bouncing_ball(void);
+void demo_moving_ball(void);
 void demo_cycling_cosine(void);
+void demo_ball_struct(void);
