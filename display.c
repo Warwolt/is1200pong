@@ -237,3 +237,5 @@ uint8_t spi_send_recv(uint8_t data)
     while(!(SPI2STAT & 1));
     return SPI2BUF;
 }
+
+//hej Rasmus, samtidigt blalaa
