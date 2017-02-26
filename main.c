@@ -21,7 +21,8 @@ static uint8_t  update_counter; // tracks 30 updates per second
 /* Main */
 int main(void)
 {
-	uint32_t pot_value;
+	int pot_value;
+	int racket_pos;
 
 
 	/* Low level initialization */
@@ -40,7 +41,7 @@ int main(void)
 	left_racket.x = 8-1;
 	left_racket.y = 0;
 	left_racket.w = 3;
-	left_racket.h = 5;
+	left_racket.h = 8;
 
 	/* Run game */
 	while(1)
@@ -54,9 +55,12 @@ int main(void)
 		display_draw_actor(&left_racket);
 		display_update();
 
+		/*display_debug( (volatile int *) &racket_pos);
+		display_show_text();*/
 
 		/* Input step */
 		pot_value = input_get_analog(1);
+		left_racket.y = pot_value * 32/1024;
 
 		/* Update step */
 		update_counter++;
