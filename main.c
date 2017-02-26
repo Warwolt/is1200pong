@@ -42,8 +42,6 @@ int main(void)
 	left_racket.w = 3;
 	left_racket.h = 5;
 
-
-
 	/* Run game */
 	while(1)
 	{
@@ -53,13 +51,12 @@ int main(void)
 
 		/* Draw step */
 		display_cls();
-		// draw stufff here
+		display_draw_actor(&left_racket);
 		display_update();
 
 
 		/* Input step */
 		pot_value = input_get_analog(1);
-
 
 		/* Update step */
 		update_counter++;

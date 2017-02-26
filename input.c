@@ -31,12 +31,12 @@ uint16_t input_get_analog(uint8_t pin)
 {
 	/* Select potentiometer in MUX A */
 	AD1CHSCLR = 0xF << 16; // clear bit <19:16>
-	AD1CHSSET = analog_pin_nr[pin] << 16; // select A0 in MUX A
+	AD1CHSSET = analog_pin_nr[pin] << 16; // select analog input in MUX A
 
 	/* Start sampling, wait until conversion is done */
-	AD1CON1 |= (0x1 << 1);
-	while(!(AD1CON1 & (0x1 << 1)));
-	while(!(AD1CON1 & 0x1));
+	AD1CON1 |= (0x1 << 1);				// start sampling analog input
+	while(!(AD1CON1 & (0x1 << 1))); 	// wait for sampling to finish
+	while(!(AD1CON1 & 0x1));			// wait for conversion to finish 
 
 	/* Return sampled value found in buffer */
 	return ADC1BUF0;

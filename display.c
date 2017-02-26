@@ -61,15 +61,17 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     {
         for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
         {
-            //if(i >= 0 && j >= 0)
-                display_set_pixel(i,j);
+            display_set_pixel(i,j);
         }
     }
 }
 
-void display_draw_actor(struct actor *a_ptr)
+/* Brief  : Calls draw rectangle function to draw a rectangle actor, used 
+*           because this makes writing other stuff much easier on the syntax.
+* Author  : Rasmus Kallqvist */  
+void display_draw_actor(struct actor *a)
 {
-  
+    display_draw_rect(a->x, a->y, a->x + a->w, a->y+a->h); 
 }
 
 /* Brief  : (something about adding text to a buffer? clear this up!)

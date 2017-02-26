@@ -11,6 +11,7 @@
 #include <stdint.h>  	/* Declarations of uint_32 and the like */
 #include "display.h"  	/* OLED display device drivers and draw functions */
 #include "input.h"		/* Read potentiometer and buttons values */
+#include "structs.h"	/* Contains definitions for actor struct */
 
 
 /* Defines -------------------------------------------------------------------*/
@@ -33,15 +34,3 @@ void demo_moving_ball(void);
 void demo_cycling_cosine(void);
 void demo_ball_struct(void);
 
-/* Structs -------------------------------------------------------------------*/
-/* Brief  : Struct for all moving objects
- * Author : Michel Bitar */
-struct actor
-{
-    int x;
-    int y;
-    int w;
-    int h;
-    int dx;
-    int dy;
-}	actor;
