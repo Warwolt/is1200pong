@@ -12,7 +12,7 @@
 #include "main.h"
 
 /* Local variablrs -----------------------------------------------------------*/
-static char test_char = 0x37; 	// (this should be removed when done with test)
+static char test_char = 0x30; 	// (this should be removed when done with test)
 static uint32_t timer_counter;	// tracks timer value 
 static uint8_t  timeout_flag;	// signals 1/30th second has elapsed
 static uint8_t  update_counter; // tracks 30 updates per second
@@ -21,6 +21,8 @@ static uint8_t  update_counter; // tracks 30 updates per second
 /* Main */
 int main(void)
 {
+	uint16_t potentiometer_values[2];
+
 	/* Low level initialization */
 	init_mcu();
 
@@ -35,26 +37,22 @@ int main(void)
 	/* Run demos */
 	while(1)
 	{
-		/* Wait for timeout */
+		/* Wait step */
 		while(!timeout_flag);
-		timeout_flag = 0; // rest timeout flag
+		timeout_flag = 0; // reset timeout flag
+			
+		/* Draw step */
+		display_print("analog input test", 0);
+		display_print(&test_char, 1); // analog input test 
+		display_show_text();
+
+		/* Input step */
+		// read some inputs here 
+
+		/* Update step */
 		update_counter++;
 		if(update_counter > 30)
 			update_counter = 0;
-			
-		/* Draw step */
-		display_print("30 ups test", 0);
-		display_print(&test_char, 1); // timer test 
-		display_show_text();
-
-		/* Update step */
-		if(update_counter == 30)
-		{
-			/* Once every 30 updates = 1 second */
-			test_char += 1;
-  			if(test_char == 0x3A)
-  				test_char = 0x30;
-		}
 	}
 
 	return 0;
