@@ -67,9 +67,14 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     }
 }
 
+void display_draw_actor(struct actor *a_ptr)
+{
+  
+}
+
 /* Brief  : (something about adding text to a buffer? clear this up!)
  * Author : Fredrik Lundeval / Axel Isaksson */
-void display_print(char *s, int page) 
+void display_print(char *s, int page)
 {
     int i;
 
@@ -79,7 +84,7 @@ void display_print(char *s, int page)
     /* Check if null pointer */
     if(!s)
         return;
-    
+
     /* Copy string contents to text buffer */
     for(i = 0; i < 16; i++)
         if(*s) {
@@ -240,7 +245,7 @@ void display_update(void)
     }
 }
 
-/* This is the hackiest shit ever. don't use this for anything other than 
+/* This is the hackiest shit ever. don't use this for anything other than
 deverlop testing and stuff! Written by Fredrik / Axel */
 void display_show_text(void)
 {
@@ -250,17 +255,17 @@ void display_show_text(void)
         DISPLAY_CHANGE_TO_COMMAND_MODE;
         spi_send_recv(0x22);
         spi_send_recv(i);
-        
+
         spi_send_recv(0x0);
         spi_send_recv(0x10);
-        
+
         DISPLAY_CHANGE_TO_DATA_MODE;
-        
+
         for(j = 0; j < 16; j++) {
             c = textbuffer[i][j];
             if(c & 0x80)
                 continue;
-            
+
             for(k = 0; k < 8; k++)
                 spi_send_recv(font[c*8 + k]);
         }
@@ -292,12 +297,12 @@ uint8_t spi_send_recv(uint8_t data)
 }
 
 /* Brief  : function to help debugging.
-   Author : Fredrik Lundeval / Axel Isaksson 
+   Author : Fredrik Lundeval / Axel Isaksson
 
    Note: When you use this function, you should comment out any
    repeated calls to display_image; display_image overwrites
    about half of the digits shown by display_debug.
-*/   
+*/
 void display_debug(volatile int * const addr)
 {
   display_print("Addr", 1);
@@ -307,9 +312,9 @@ void display_debug(volatile int * const addr)
   // display_update(); /* Note: you must manually update the display! */
 }
 
-/* Brief  : converts a number to hexadecimal ASCII digits. 
+/* Brief  : converts a number to hexadecimal ASCII digits.
    Author : Fredrik Lundeval / Axel Isaksson */
-static void num32asc(char * s, int n) 
+static void num32asc(char * s, int n)
 {
   int i;
   for( i = 28; i >= 0; i -= 4 )

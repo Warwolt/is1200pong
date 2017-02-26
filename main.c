@@ -13,7 +13,7 @@
 
 /* Local variablrs -----------------------------------------------------------*/
 static char test_char = 0x30; 	// (this should be removed when done with test)
-static uint32_t timer_counter;	// tracks timer value 
+static uint32_t timer_counter;	// tracks timer value
 static uint8_t  timeout_flag;	// signals 1/30th second has elapsed
 static uint8_t  update_counter; // tracks 30 updates per second
 
@@ -21,7 +21,8 @@ static uint8_t  update_counter; // tracks 30 updates per second
 /* Main */
 int main(void)
 {
-	uint16_t potentiometer_values[2];
+	uint32_t pot_value;
+
 
 	/* Low level initialization */
 	init_mcu();
@@ -34,20 +35,31 @@ int main(void)
 	enable_interrupt();
 	led_write(0x1); // bootup done
 
-	/* Run demos */
+	/* Set up game */
+	struct actor left_racket;
+	left_racket.x = 8-1;
+	left_racket.y = 0;
+	left_racket.w = 3;
+	left_racket.h = 5;
+
+
+
+	/* Run game */
 	while(1)
 	{
 		/* Wait step */
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
-			
+
 		/* Draw step */
-		display_print("analog input test", 0);
-		display_print(&test_char, 1); // analog input test 
-		display_show_text();
+		display_cls();
+		// draw stufff here
+		display_update();
+
 
 		/* Input step */
-		// read some inputs here 
+		pot_value = input_get_analog(1);
+
 
 		/* Update step */
 		update_counter++;
@@ -94,15 +106,15 @@ void init_mcu(void)
 void init_tim(void)
 {
 	/* Configure Timer 2 */
-	T2CON     = 0x0;        	// reset control register 
+	T2CON     = 0x0;        	// reset control register
 	T2CONSET  = (0x4 << 4);     // set prescaler to 1:16
 	PR2       = TMR2PERIOD; 	// set period length
-	TMR2      = 0;          	// reset timer value 
-	T2CONSET  = (0x1 << 15);    // start the timer 
+	TMR2      = 0;          	// reset timer value
+	T2CONSET  = (0x1 << 15);    // start the timer
 
 	/* Enable Timer 2 interrupts */
 	IPC(2)    = 0x4;        	// set interrupt priority to 4
-	IECSET(0) = 0x1<<8;      	// timer 2 interrupt enable 
+	IECSET(0) = 0x1<<8;      	// timer 2 interrupt enable
 	IFSCLR(0) = 0x1<<8;      	// clear timer 2 interrupt flag
 }
 
@@ -111,20 +123,19 @@ void init_tim(void)
 void user_isr(void)
 {
  	/* Timer 2 timeout */
-  	if(IFS(0) & 0x1<<8) // check interrupt flag  
+  	if(IFS(0) & 0x1<<8) // check interrupt flag
   	{
   		timer_counter++;
-  		if(timer_counter == 3225) // value has been trimmed manually for 30 ups 
+  		if(timer_counter == 3225) // value has been trimmed manually for 30 ups
   		{
   			timeout_flag = 0x1;		// set timeout flag
   			timer_counter = 0x0; 	// reset timer counter
   		}
-  		
-  		IFSCLR(0) = 0x01<<8; // reset interrupt flag      
-  	}		
- 
-}
 
+  		IFSCLR(0) = 0x01<<8; // reset interrupt flag
+  	}
+
+}
 /* Turn LED7 to LED0 on or off, bits in write_data specifies LED states */
 void led_write(uint8_t write_data)
 {
