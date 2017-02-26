@@ -21,9 +21,7 @@ static uint8_t  update_counter; // tracks 30 updates per second
 /* Main */
 int main(void)
 {
-	int pot_value;
-	int racket_pos;
-
+	int pot_values[2];
 
 	/* Low level initialization */
 	init_mcu();
@@ -41,7 +39,21 @@ int main(void)
 	left_racket.x = 8-1;
 	left_racket.y = 0;
 	left_racket.w = 3;
-	left_racket.h = 8;
+	left_racket.h = 9;
+
+	struct actor right_racket;
+	right_racket.w = 3;
+	right_racket.h = 9;
+	right_racket.x = 128 - right_racket.h - 1;
+	right_racket.y = 0;
+
+	struct actor ball;
+	ball.w = 2;
+	ball.h = 2;
+	ball.x = 64-1;
+	ball.y = 16-1;
+	ball.dx = 1;
+	ball.dy = -1;
 
 	/* Run game */
 	while(1)
@@ -53,19 +65,32 @@ int main(void)
 		/* Draw step */
 		display_cls();
 		display_draw_actor(&left_racket);
+		display_draw_actor(&right_racket);
+		display_draw_actor(&ball);
 		display_update();
 
 		/*display_debug( (volatile int *) &racket_pos);
 		display_show_text();*/
 
 		/* Input step */
-		pot_value = input_get_analog(1);
-		left_racket.y = pot_value * 32/1024;
+		pot_values[0] = input_get_analog(1);
+		pot_values[1] = input_get_analog(0);
 
 		/* Update step */
 		update_counter++;
 		if(update_counter > 30)
 			update_counter = 0;
+	  // move rackets
+    left_racket.y = pot_values[0] * (32-left_racket.h)/1024;
+    right_racket.y = pot_values[1] * (32-right_racket.h)/1024;
+		// move ball
+		if(ball.x+ball.w >= 127 | ball.x <= 1)
+			ball.dx = -ball.dx;
+		if(ball.y+ball.h >= 31 | ball.y <= 0)
+			ball.dy = -ball.dy;
+
+			ball.x += ball.dx;
+			ball.y += ball.dy;
 	}
 
 	return 0;
@@ -75,8 +100,8 @@ int main(void)
 void init_mcu(void)
 {
 	/* Set up peripheral bus clock */
-    /* OSCCONbits.PBDIV = 1; */
-    OSCCONCLR = 0x100000; /* clear PBDIV bit 1 */
+  /* OSCCONbits.PBDIV = 1; */
+  OSCCONCLR = 0x100000; /* clear PBDIV bit 1 */
 	OSCCONSET = 0x080000; /* set PBDIV bit 0 */
 
 	/* Enable LED1 through LED8 */
@@ -98,7 +123,7 @@ void init_mcu(void)
 	SPI2CON = 0;
 	SPI2BRG = 4;
 	SPI2STATCLR = 0x40; 	/* SPI2STAT bit SPIROV = 0; */
-  	SPI2CONSET = 0x40; 		/* SPI2CON bit CKP = 1; */
+  SPI2CONSET = 0x40; 		/* SPI2CON bit CKP = 1; */
 	SPI2CONSET = 0x20; 		/* SPI2CON bit MSTEN = 1; */
 	SPI2CONSET = 0x8000;	/* SPI2CON bit ON = 1; */
 }
@@ -141,7 +166,6 @@ void user_isr(void)
 void led_write(uint8_t write_data)
 {
   /* Modify state of LEDs */
-
   PORTECLR = ~(write_data);	// write zeros of write_data
   PORTESET = (write_data);	// write ones  of write_data
   return;
