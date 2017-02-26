@@ -7,16 +7,18 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include <pic32mx.h>	/* Declarations of hardware-specific addresses etc */
+#include <stdint.h>  	/* Declarations of uint_32 and the like */
 #include "display.h"  	/* OLED display device drivers and draw functions */
 #include "input.h"		/* Read potentiometer and buttons values */
-#include <pic32mx.h>	/* Declarations of hardware-specific addresses etc */
+
 
 /* Defines -------------------------------------------------------------------*/
 /* Timer */
-#define   CLOCKFREQ       80000000    //80 MHz
-#define   TIMEOUTPERIOD   33.333      //1/30 ms
-#define   TMR2PRESCALER   256 
-#define   TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) / TIMEOUTPERIOD ) - 1
+#define   CLOCKFREQ       80000000    	// 80 MHz
+#define   TIMEOUTPERIOD   0.00001  		// 10 us
+#define   TMR2PRESCALER   16 			// (80 MHz / 16) = 5 MHz
+#define   TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) * TIMEOUTPERIOD ) - 1
 
 
 /* Function prototypes -------------------------------------------------------*/

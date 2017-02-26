@@ -69,7 +69,7 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 
 /* Brief  : (something about adding text to a buffer? clear this up!)
  * Author : Fredrik Lundeval / Axel Isaksson */
-void display_print(int page, char *s) 
+void display_print(char *s, int page) 
 {
     int i;
 
@@ -289,4 +289,29 @@ uint8_t spi_send_recv(uint8_t data)
     SPI2BUF = data;
     while(!(SPI2STAT & 1));
     return SPI2BUF;
+}
+
+/* Brief  : function to help debugging.
+   Author : Fredrik Lundeval / Axel Isaksson 
+
+   Note: When you use this function, you should comment out any
+   repeated calls to display_image; display_image overwrites
+   about half of the digits shown by display_debug.
+*/   
+void display_debug(volatile int * const addr)
+{
+  display_print("Addr", 1);
+  display_print("Data", 2);
+  num32asc( &textbuffer[1][6], (int) addr );
+  num32asc( &textbuffer[2][6], *addr );
+  // display_update(); /* Note: you must manually update the display! */
+}
+
+/* Brief  : converts a number to hexadecimal ASCII digits. 
+   Author : Fredrik Lundeval / Axel Isaksson */
+static void num32asc(char * s, int n) 
+{
+  int i;
+  for( i = 28; i >= 0; i -= 4 )
+    *s++ = "0123456789ABCDEF"[ (n >> i) & 15 ];
 }

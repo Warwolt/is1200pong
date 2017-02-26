@@ -48,7 +48,7 @@ static char textbuffer[4][16];
 /* Function prototypes -------------------------------------------------------*/
 /* Hardware abstractions */
 void display_set_pixel(uint8_t x, uint8_t y);
-void display_print(int page, char *s); 
+void display_print(char *s, int page); 
 void display_show_text(void); // hacky!!!! its been taken out of its context
 void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1);
 void display_draw_cos(uint32_t period, uint32_t phase);
@@ -59,3 +59,5 @@ void display_update(void);
 /* Helper functions */
 void quicksleep(int cyc);
 uint8_t spi_send_recv(uint8_t data);
+void display_debug(volatile int * const addr);
+static void num32asc(char * s, int n);
