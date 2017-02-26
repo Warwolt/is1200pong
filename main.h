@@ -13,7 +13,6 @@
 #include "input.h"		/* Read potentiometer and buttons values */
 #include "structs.h"	/* Contains definitions for actor struct */
 
-
 /* Defines -------------------------------------------------------------------*/
 /* Timer */
 #define   CLOCKFREQ       80000000    	// 80 MHz
@@ -21,8 +20,11 @@
 #define   TMR2PRESCALER   16 			// (80 MHz / 16) = 5 MHz
 #define   TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) * TIMEOUTPERIOD ) - 1
 
-
 /* Function prototypes -------------------------------------------------------*/
+/* Pong game */
+void pong_setup(void);
+void pong_work(uint16_t analog_values[]);	
+/* Init and interrupts */
 void user_isr(void);
 void init_mcu(void);
 void init_tim(void);

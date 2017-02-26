@@ -6,22 +6,27 @@
 * brief  : 	Main function for pong game on chipkit uno32 microcontroller
 ********************************************************************************
 */
-// todo: maybe implement better tim 2 period to get good 30 hz timer
+
+// todo: solve insane bug of multiplying float by -1 seemingly equaling zero
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* Local variablrs -----------------------------------------------------------*/
-static char test_char = 0x30; 	// (this should be removed when done with test)
-static uint32_t timer_counter;	// tracks timer value
-static uint8_t  timeout_flag;	// signals 1/30th second has elapsed
-static uint8_t  update_counter; // tracks 30 updates per second
+/* Local variables -----------------------------------------------------------*/
+/* Timer */
+static uint32_t timer_counter;	/* Tracks number of timer 2 interrupts */
+static uint8_t  timeout_flag;	/* Signals 1/30th second has elapsed */
+static uint8_t  update_counter; /* Tracks 30 updates per second */
+/* Pong game */
+static struct actor ball;
+static struct actor left_racket;
+static struct actor right_racket;
 
 /* Function definitions ------------------------------------------------------*/
 /* Main */
 int main(void)
 {
-	int pot_values[2];
+	uint16_t analog_values[2];
 
 	/* Low level initialization */
 	init_mcu();
@@ -35,25 +40,7 @@ int main(void)
 	led_write(0x1); // bootup done
 
 	/* Set up game */
-	struct actor left_racket;
-	left_racket.x = 8-1;
-	left_racket.y = 0;
-	left_racket.w = 3;
-	left_racket.h = 9;
-
-	struct actor right_racket;
-	right_racket.w = 3;
-	right_racket.h = 9;
-	right_racket.x = 128 - right_racket.h - 1;
-	right_racket.y = 0;
-
-	struct actor ball;
-	ball.w = 2;
-	ball.h = 2;
-	ball.x = 64-1;
-	ball.y = 16-1;
-	ball.dx = 1;
-	ball.dy = -1;
+	pong_setup();
 
 	/* Run game */
 	while(1)
@@ -62,6 +49,40 @@ int main(void)
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
 
+		/* Iterate game state */
+		pong_work(analog_values);
+	}
+
+	return 0;
+}
+
+/* Brief  : Set up pong game and initialize file local variables.  
+   Author : Michel Bitar */
+void pong_setup(void)
+{
+	left_racket.w = 3;
+	left_racket.h = 9;
+	left_racket.x = 8 - 1;
+	left_racket.y = 16 - 1 - (left_racket.h / 2);
+
+	right_racket.w = 3;
+	right_racket.h = 9;
+	right_racket.x = 128 - 1 - right_racket.w - 3;
+	right_racket.y = 16 - 1 - (right_racket.h / 2);
+
+	ball.w = 2;
+	ball.h = 2;
+	ball.x = 64-1;
+	ball.y = 16-1;
+	ball.dx = 1;
+	ball.dy = -1;
+}
+
+/* Brief  : Carries out one iteration of the pong game state with the sequence;
+ * 			draw game state, read inputs, and update game state.
+ * Author : Michel Bitar and Rasmus Kallqvist */
+void pong_work(uint16_t analog_values[])
+{
 		/* Draw step */
 		display_cls();
 		display_draw_actor(&left_racket);
@@ -69,39 +90,37 @@ int main(void)
 		display_draw_actor(&ball);
 		display_update();
 
-		/*display_debug( (volatile int *) &racket_pos);
-		display_show_text();*/
-
 		/* Input step */
-		pot_values[0] = input_get_analog(1);
-		pot_values[1] = input_get_analog(0);
+		analog_values[0] = input_get_analog(1);
+		analog_values[1] = input_get_analog(0);
 
 		/* Update step */
+		// track number of updates 
 		update_counter++;
 		if(update_counter > 30)
 			update_counter = 0;
-	  // move rackets
-    left_racket.y = pot_values[0] * (32-left_racket.h)/1024;
-    right_racket.y = pot_values[1] * (32-right_racket.h)/1024;
+	  	
+	  	// move rackets
+    	left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
+    	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
+		
 		// move ball
 		if(ball.x+ball.w >= 127 | ball.x <= 1)
 			ball.dx = -ball.dx;
 		if(ball.y+ball.h >= 31 | ball.y <= 0)
 			ball.dy = -ball.dy;
 
-			ball.x += ball.dx;
-			ball.y += ball.dy;
-	}
-
-	return 0;
+		ball.x += ball.dx;
+		ball.y += ball.dy;
 }
+
 
 /* Low level initialization of microcontroller */
 void init_mcu(void)
 {
 	/* Set up peripheral bus clock */
-  /* OSCCONbits.PBDIV = 1; */
-  OSCCONCLR = 0x100000; /* clear PBDIV bit 1 */
+	/* OSCCONbits.PBDIV = 1; */
+	OSCCONCLR = 0x100000; /* clear PBDIV bit 1 */
 	OSCCONSET = 0x080000; /* set PBDIV bit 0 */
 
 	/* Enable LED1 through LED8 */
@@ -123,7 +142,7 @@ void init_mcu(void)
 	SPI2CON = 0;
 	SPI2BRG = 4;
 	SPI2STATCLR = 0x40; 	/* SPI2STAT bit SPIROV = 0; */
-  SPI2CONSET = 0x40; 		/* SPI2CON bit CKP = 1; */
+ 	SPI2CONSET = 0x40; 		/* SPI2CON bit CKP = 1; */
 	SPI2CONSET = 0x20; 		/* SPI2CON bit MSTEN = 1; */
 	SPI2CONSET = 0x8000;	/* SPI2CON bit ON = 1; */
 }

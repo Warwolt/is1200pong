@@ -8,7 +8,7 @@
 
 #ifndef	FONT_H
 #define	FONT_H 
-static const uint8_t const font[] = 
+static const uint8_t const font[1024] = 
 {
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,

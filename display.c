@@ -20,14 +20,14 @@ static uint8_t screen_content[128][4];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display.
- *          The display is comprised of a sequence of 8 pixel high columns, so
- *          we have to translate a given y coordinate into two components, what
- *          byte to write to and the bit offset within the given byte.
+ *          The display is comprised of a sequence of 8 pixel high columns. 
+ *          A given y coordinate bust be divided up into two components; which
+ *          byte to write to, and the bit offset within the given byte.
  * Author : Rasmus Kallqvist */
 void display_set_pixel(uint8_t x, uint8_t y)
 {
-    uint8_t bit_offset = y % 8;
-    uint8_t byte_select = (y - bit_offset) / 8;
+    uint8_t bit_offset = y % 8;                 /* Offset is the remainder  */
+    uint8_t byte_select = (y - bit_offset) / 8; /* Select is floor function */
 
     /* Check if valid coordinates */
     if(x < 0 || x > 127 || y < 0 || y > 31)
@@ -66,13 +66,15 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     }
 }
 
-/* Brief  : Calls draw rectangle function to draw a rectangle actor, used 
-*           because this makes writing other stuff much easier on the syntax.
+
+/* Brief  : Calls draw rectangle function to draw a rectangle actor struct. 
+*           Makes writing other stuff much easier on the syntax.
 * Author  : Rasmus Kallqvist */  
 void display_draw_actor(struct actor *a)
 {
     display_draw_rect(a->x, a->y, a->x + a->w, a->y+a->h); 
 }
+
 
 /* Brief  : (something about adding text to a buffer? clear this up!)
  * Author : Fredrik Lundeval / Axel Isaksson */
@@ -247,38 +249,47 @@ void display_update(void)
     }
 }
 
-/* This is the hackiest shit ever. don't use this for anything other than
-deverlop testing and stuff! Written by Fredrik / Axel */
+/* Brief  : This is the hackiest shit ever. don't use this for anything other 
+ *          than deverlop testing and stuff! The function is taken out of 
+ *          its propper contextd.
+ * Author : Written by Fredrik Lundeval / Axel Isaksson */
 void display_show_text(void)
 {
-    int i, j, k;
+    int cur_page, cur_char, cur_col;
     int c;
-    for(i = 0; i < 4; i++) {
+    /* Loop through each row on display */
+    for(cur_page = 0; cur_page < 4; cur_page++) 
+    {
         DISPLAY_CHANGE_TO_COMMAND_MODE;
-        spi_send_recv(0x22);
-        spi_send_recv(i);
+        spi_send_recv(CMD_SET_PAGE_ADDRESS);
+        spi_send_recv(cur_page);
 
         spi_send_recv(0x0);
         spi_send_recv(0x10);
 
         DISPLAY_CHANGE_TO_DATA_MODE;
 
-        for(j = 0; j < 16; j++) {
-            c = textbuffer[i][j];
-            if(c & 0x80)
-                continue;
+        /* Loop through each character in row */
+        for(cur_char = 0; cur_char < 16; cur_char++) 
+        {
+            /* Get next char to print from buffer */
+            c = textbuffer[cur_page][cur_char];
 
-            for(k = 0; k < 8; k++)
-                spi_send_recv(font[c*8 + k]);
+            /* Skip extended ascii codes */
+            if(c & 0x80)
+                continue; 
+
+            /* Print character to screen */
+            for(cur_col = 0; cur_col < 8; cur_col++)
+                spi_send_recv(font[c*8 + cur_col]);
         }
     }
 }
 
 
 
-/* Helper functions */
-
-/* Brief  : a simple function to create a small delay. Very inefficient use of
+/* Helper functions ----------------------------------------------------------*/
+/* Brief  : Simple function to create a short delay. Very inefficient use of
  *          computing resources, but very handy in some special cases.
  * Author : Fredrik Lundeval / Axel Isaksson */
 void quicksleep(int cyc)
@@ -288,7 +299,7 @@ void quicksleep(int cyc)
 }
 
 
-/* Brief  : send/receive one byte over spi connected to the i/o shield display
+/* Brief  : Send/receive one byte over spi connected to the i/o shield display
  * Author : Fredrik Lundeval / Axel Isaksson */
 uint8_t spi_send_recv(uint8_t data)
 {

@@ -18,8 +18,8 @@ struct actor
     int y;
     int w;
     int h;
-    int dx;
-    int dy;
+    float dx;
+    float dy;
 }	actor;
 
 #endif /* STRUCTS_H */
