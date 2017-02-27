@@ -17,6 +17,7 @@
 
 /* Local variables -----------------------------------------------------------*/
 static uint8_t screen_content[128][4];
+static char textbuffer[4][16];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display.
@@ -44,8 +45,6 @@ void display_set_pixel(uint8_t x, uint8_t y)
  *          right corner in (x1, y1). If either corner is out of the screen
  *          boundrary, only part of the rectangle will be drawn.
  * Author : Rasmus Kallqvist */
-// TODO: check if window clipping works, ie ability to draw a rectangle that
-// is partially off-screen by only adding visible part to screen
 void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 {
     uint8_t width = x1 - x0;
@@ -56,7 +55,7 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     if(x1 < x0 || y1 < y0)
         return;
 
-   /* Draw rectangle to screen */
+    /* Draw rectangle to screen */
     for(i = x0; (i < (x0+width)) && (i < DP_WIDTH); i++)
     {
         for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
@@ -89,17 +88,20 @@ void display_print(char *s, int page)
     /* Check if withing display boundry*/
     if(page < 0 || page > 3)
         return;
+
     /* Check if null pointer */
     if(!s)
         return;
 
     /* Copy string contents to text buffer */
     for(i = 0; i < 16; i++)
+    {
         if(*s) {
             textbuffer[page][i] = *s;
             s++;
         } else
             textbuffer[page][i] = ' ';
+    }
 }
 
 
@@ -287,6 +289,62 @@ void display_show_text(void)
             for(cur_col = 0; cur_col < 8; cur_col++)
                 spi_send_recv(font[c*8 + cur_col]);
         }
+    }
+}
+
+/* Brief  : Hacky prototype for printing text to screen_content buffer 
+ * Author : Rasmus Kallqvist
+ *          original code by Fredrik Lundeval / Axel Isaksson */
+void display_hacky_print(char *s, int x, int y)
+{
+    int cur_char, cur_slice, cur_col, cur_row;
+    int c_printed; /* number of characters printed */
+    char textbuff[16];
+
+    /* Check if valid coordinates */
+    if(x < 0 || x > (127 - 8) || y < 0 || y > (31 - 8))
+        return;
+
+    /* Check if empty string */
+    if(!s)
+        return;
+
+    /* Copy string contents to text buffer */
+    for(cur_char = 0; cur_char < 16; cur_char++)
+    {
+        if(*s) 
+        {
+            textbuff[cur_char] = *s;
+            s++;
+        } 
+        else
+        {
+            textbuff[cur_char] = ' ';
+        }
+    }
+
+    /* Copy string to screen buffer */
+    for(c_printed = 0; c_printed < 16; c_printed++) 
+    {
+        /* Get next ascii character to print */
+        cur_char = textbuff[c_printed];
+
+        /* Copy bitmap data to screen buffer */
+        for(cur_col = 0; cur_col < 8; cur_col++)
+        {
+            /* Get 8 pixel high slice from character bitmap */
+            cur_slice = font[cur_char*8 + cur_col];
+
+            /* Copy current 8 pixel slice to screen buffer */
+            for(cur_row = 0; cur_row < 8; cur_row++)
+            {
+                /* If pixel in slice is set, then set pixel in buffer */
+                if( (cur_slice >> cur_row) & 0x1 )
+                    display_set_pixel(x+8*c_printed+cur_col, y+cur_row); 
+            }
+        }
+        
+
     }
 }
 

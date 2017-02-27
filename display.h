@@ -44,9 +44,6 @@
 /* Math */
 #define PI 								3.14159	
 
-/* Local variables -----------------------------------------------------------*/
-static char textbuffer[4][16];
-
 /* Function prototypes -------------------------------------------------------*/
 /* Hardware abstractions */
 void display_set_pixel(uint8_t x, uint8_t y);
