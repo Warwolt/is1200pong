@@ -7,8 +7,6 @@
 ********************************************************************************
 */
 
-// todo: solve insane bug of multiplying float by -1 seemingly equaling zero
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
@@ -54,12 +52,12 @@ int main(void)
 	return 0;
 }
 
-/* Brief  : Set up pong game and initialize file local variables.  
+/* Brief  : Set up pong game and initialize file local variables.
    Author : Michel Bitar */
 void pong_setup(void)
 {
 	/* Settings */
-	uint32_t edge_offset = 32; // distance from screen edge 
+	uint32_t edge_offset = 32; // distance from screen edge
 
 	/* Intialize game structs */
 	left_racket.w = 3;
@@ -76,7 +74,7 @@ void pong_setup(void)
 	ball.h = 2;
 	ball.x = 64-1;
 	ball.y = 16-1;
-	ball.dx = 1; 
+	ball.dx = 1;
 	ball.dy = -1;
 }
 
@@ -100,24 +98,45 @@ void pong_work(void)
 
 	/*** Update step ***/
 	/* Track updates */
-	update_counter++;		
+	update_counter++;
 	if(update_counter > 30)
 		update_counter = 0;
-  	
+
   	/* move rackets */
-	left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
-	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
-	
-	/* move ball */
+    left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
+		right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
+
+	/* check ball collisons */
 	if(ball.x+ball.w >= 127 | ball.x <= 1)
 		ball.dx = -ball.dx;
 	if(ball.y+ball.h >= 31 | ball.y <= 0)
 		ball.dy = -ball.dy;
-
-	ball.x += ball.dx;
-	ball.y += ball.dy;
+	if(actor_collision(&right_racket, &ball)
+		 || actor_collision(&left_racket, &ball))
+		ball.dx = -ball.dx;
+		/* move ball */
+		ball.x += ball.dx;
+    ball.y += ball.dy;
 }
 
+
+/* Brief  :
+ * Author : */
+int actor_collision(struct actor *a, struct actor *b)
+{
+	if ( (a->x) < (b->x + b->w) &&	//b->h
+			 (a->x + a->w) > (b->x) &&
+		 	 (a->y) < (b->y + b->h) &&
+			 (a->y + a->h) > (b->y)		)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+}
 
 /* Low level initialization of microcontroller */
 void init_mcu(void)
