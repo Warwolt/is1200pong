@@ -19,6 +19,8 @@ static uint8_t  update_counter; /* Tracks 30 updates per second */
 static struct actor ball;
 static struct actor left_racket;
 static struct actor right_racket;
+static int	  p1_score; 	/* Player 1 score tracker */	
+static int    p2_score; 	/* Player 2 score tracker */
 
 /* Function definitions ------------------------------------------------------*/
 /* Main */
@@ -114,17 +116,18 @@ void pong_work(void)
 	if(actor_collision(&right_racket, &ball)
 		 || actor_collision(&left_racket, &ball))
 		ball.dx = -ball.dx;
-		/* move ball */
-		ball.x += ball.dx;
+	
+	/* move ball */
+	ball.x += ball.dx;
     ball.y += ball.dy;
 }
 
 
-/* Brief  :
- * Author : */
+/* Brief  : Checks for actor collision using Axis Aligned Bounding Box (AABB)
+ * Author : Michel Bitar */
 int actor_collision(struct actor *a, struct actor *b)
 {
-	if ( (a->x) < (b->x + b->w) &&	//b->h
+	if ( (a->x) < (b->x + b->w) &&
 			 (a->x + a->w) > (b->x) &&
 		 	 (a->y) < (b->y + b->h) &&
 			 (a->y + a->h) > (b->y)		)

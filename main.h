@@ -15,10 +15,12 @@
 
 /* Defines -------------------------------------------------------------------*/
 /* Timer */
-#define   CLOCKFREQ       80000000    	// 80 MHz
-#define   TIMEOUTPERIOD   0.00001  		// 10 us
-#define   TMR2PRESCALER   16 			// (80 MHz / 16) = 5 MHz
-#define   TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) * TIMEOUTPERIOD ) - 1
+#define   	CLOCKFREQ       80000000    	// 80 MHz
+#define   	TIMEOUTPERIOD   0.00001  		// 10 us
+#define   	TMR2PRESCALER   16 			// (80 MHz / 16) = 5 MHz
+#define   	TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) * TIMEOUTPERIOD ) - 1
+/* Pong game */
+#define		MATCH_SCORE		5		 
 
 /* Function prototypes -------------------------------------------------------*/
 /* Pong game */
