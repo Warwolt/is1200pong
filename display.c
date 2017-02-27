@@ -17,7 +17,6 @@
 
 /* Local variables -----------------------------------------------------------*/
 static uint8_t screen_content[128][4];
-static char textbuffer[4][16];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display.
@@ -56,9 +55,9 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
         return;
 
     /* Draw rectangle to screen */
-    for(i = x0; (i < (x0+width)) && (i < DP_WIDTH); i++)
+    for(i = x0; (i < (x0+width)) && (i < DISPLAY_WIDTH); i++)
     {
-        for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
+        for(j = y0; (j < (y0+height)) && (j < DISPLAY_HEIGHT); j++)
         {
             display_set_pixel(i,j);
         }
@@ -318,8 +317,9 @@ uint8_t spi_send_recv(uint8_t data)
     return SPI2BUF;
 }
 
-/* Brief  : function to help debugging.
+/* Brief  : Function to help debugging.
    Author : Fredrik Lundeval / Axel Isaksson
+            Modified by Rasmus Kallqvist
 
    Note: When you use this function, you should comment out any
    repeated calls to display_image; display_image overwrites
@@ -327,11 +327,16 @@ uint8_t spi_send_recv(uint8_t data)
 */
 void display_debug(volatile int * const addr)
 {
-  display_print("Addr", 0,0);
-  display_print("Data", 7,0);
-  num32asc( &textbuffer[1][6], (int) addr );
-  num32asc( &textbuffer[2][6], *addr );
-  // display_update(); /* Note: you must manually update the display! */
+    char textbuffer[2][16];
+    num32asc( &textbuffer[0][6], (int) addr );
+    num32asc( &textbuffer[1][6], *addr );
+
+    display_cls();
+    display_print("Addr", 0,0);
+    display_print("Data", 0,8);
+    display_print(textbuffer[0], 48, 0);
+    display_print(textbuffer[1], 48, 8);
+    display_update();
 }
 
 /* Brief  : converts a number to hexadecimal ASCII digits.

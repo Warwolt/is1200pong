@@ -39,8 +39,8 @@
 #define CMD_SEQ_COM_LEFTRIGHT_REMAP		(uint8_t)0x20
 #define	CMD_SET_PAGE_ADDRESS			(uint8_t)0x22
 /* Display properties */
-#define DP_WIDTH						128
-#define DP_HEIGHT						32
+#define DISPLAY_WIDTH					128
+#define DISPLAY_HEIGHT					32
 /* Math */
 #define PI 								3.14159
 

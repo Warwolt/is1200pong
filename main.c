@@ -15,12 +15,6 @@
 static uint32_t timer_counter;	/* Tracks number of timer 2 interrupts */
 static uint8_t  timeout_flag;	/* Signals 1/30th second has elapsed */
 static uint8_t  update_counter; /* Tracks 30 updates per second */
-/* Pong game */
-static struct actor ball;
-static struct actor left_racket;
-static struct actor right_racket;
-static int	  pl1_score = 2; 	/* Player 1 score tracker */	
-static int    pl2_score; 	/* Player 2 score tracker */
 
 /* Function definitions ------------------------------------------------------*/
 /* Main */
@@ -40,6 +34,9 @@ int main(void)
 	/* Set up game */
 	pong_setup();
 
+	//test
+	int test = 6;
+
 	/* Run game */
 	while(1)
 	{
@@ -47,138 +44,13 @@ int main(void)
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
 
+		display_debug((volatile int*)&test);
+
 		/* Iterate game state */
-		pong_work();
+		//pong_work();
 	}
 
 	return 0;
-}
-
-/* Brief  : Set up pong game and initialize file local variables.
-   Author : Michel Bitar */
-void pong_setup(void)
-{
-	/* Settings */
-	uint32_t edge_offset = 34; // distance from screen edge
-
-	/* Intialize game structs */
-	left_racket.w = 3;
-	left_racket.h = 9;
-	left_racket.x = edge_offset - 1;
-	left_racket.y = 16 - 1 - (left_racket.h / 2);
-
-	right_racket.w = 3;
-	right_racket.h = 9;
-	right_racket.x = 128 - 1 - right_racket.w - edge_offset;
-	right_racket.y = 16 - 1 - (right_racket.h / 2);
-
-	ball.w = 2;
-	ball.h = 2;
-	ball.x = 64-1;
-	ball.y = 16-1;
-	ball.dx = 1;
-	ball.dy = -1;
-}
-
-/* Brief  : Carries out one iteration of the pong game state with the sequence;
- * 			draw game state, read inputs, and update game state.
- * Author : Michel Bitar and Rasmus Kallqvist */
-void pong_work(void)
-{
-	uint16_t analog_values[2];
-	char c[16]; /* Temporary character storage */
-
-	/*** Draw step ***/
-	display_cls(); /* Clear screen */
-
-	/* Draw actors */
-	display_draw_actor(&left_racket);
-	display_draw_actor(&right_racket);
-	display_draw_actor(&ball);
-	/* Draw playing field */
-	display_draw_dotline(LEFT_EDGE - 1);
-	display_draw_dotline(RIGHT_EDGE - 1);
-
-	/* Draw scores */
-	// player 1
-	c[0] = 0x30 + pl1_score;
-	c[1] = '\0';
-	display_print("pl1", 0, 0);
-	display_print(c, 8, 10);
-	// player 2 
-	c[0] = 0x30 + pl2_score;
-	c[1] = '\0';
-	display_print("pl2", 128-24, 0);
-	display_print(c, 128-16, 10);
- 
- 	display_update(); /* Update screen */
-
-	/*** Input step ***/
-	analog_values[0] = input_get_analog(1);
-	analog_values[1] = input_get_analog(0);
-
-	/*** Update step ***/
-	/* Track updates */
-	update_counter++;
-	if(update_counter > 30)
-		update_counter = 0;
-
-  	/* Move rackets */
-    left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
-	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
-
-	/* Check ball collisons */
-	// collide with roof and floor 
-	if(ball.x+ball.w >= 127 | ball.x <= 1)
-		ball.dx = -ball.dx;
-	if(ball.y+ball.h >= 31 | ball.y <= 0)
-		ball.dy = -ball.dy;
-	// collide with rackets 
-	if(actor_collision(&right_racket, &ball)
-		 || actor_collision(&left_racket, &ball))
-		ball.dx = -ball.dx;
-	
-	/* Move ball */
-	ball.x += ball.dx;
-    ball.y += ball.dy;
-
-    /* Check if score */
-    if(ball.x > RIGHT_EDGE)
-    {
-    	pl1_score++;
-    	ball.x = PLAYINGFIELD_MIDDLE;
-    	ball.dx = -ball.dx;
-    	if(pl1_score == 5) // add win con here later 
-    		pl1_score = 0;
-    }
-    if(ball.x < LEFT_EDGE)
-    {
-    	pl2_score++;
-    	ball.x = PLAYINGFIELD_MIDDLE;
-    	ball.dx = -ball.dx;
-    	if(pl2_score == 5)
-    		pl2_score = 0; // add win con here 
-    }
-
-}
-
-
-/* Brief  : Checks for actor collision using Axis Aligned Bounding Box (AABB)
- * Author : Michel Bitar */
-int actor_collision(struct actor *a, struct actor *b)
-{
-	if ( (a->x) < (b->x + b->w)     &&
-			 (a->x + a->w) > (b->x) &&
-		 	 (a->y) < (b->y + b->h) &&
-			 (a->y + a->h) > (b->y)		)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-
 }
 
 /* Low level initialization of microcontroller */
@@ -237,7 +109,7 @@ void user_isr(void)
   	if(IFS(0) & 0x1<<8) // check interrupt flag
   	{
   		timer_counter++;
-  		if(timer_counter == 3225) // value has been trimmed manually for 30 ups
+  		if(timer_counter == 3333) // 30 updates per second
   		{
   			timeout_flag = 0x1;		// set timeout flag
   			timer_counter = 0x0; 	// reset timer counter
