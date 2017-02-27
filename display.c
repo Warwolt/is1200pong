@@ -20,7 +20,7 @@ static uint8_t screen_content[128][4];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display.
- *          The display is comprised of a sequence of 8 pixel high columns. 
+ *          The display is comprised of a sequence of 8 pixel high columns.
  *          A given y coordinate bust be divided up into two components; which
  *          byte to write to, and the bit offset within the given byte.
  * Author : Rasmus Kallqvist */
@@ -67,16 +67,27 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 }
 
 
-/* Brief  : Calls draw rectangle function to draw a rectangle actor struct. 
+/* Brief  : Calls draw rectangle function to draw a rectangle actor struct.
 *           Makes writing other stuff much easier on the syntax.
-* Author  : Rasmus Kallqvist */  
+* Author  : Rasmus Kallqvist */
 void display_draw_actor(struct actor *a)
 {
     int x0 = (int) round(a->x);
     int y0 = (int) round(a->y);
     int x1 = (int) round(a->x + a->w);
     int y1 = (int) round(a->y + a->h);
-    display_draw_rect(x0, y0, x1, y1); 
+    display_draw_rect(x0, y0, x1, y1);
+}
+
+/* Brief  : Draw right and left doted line
+ * Author : Michel Bitar*/
+void display_draw_dotline (int x0)
+{
+  int i;
+	for (i = 0; i < 4; i++)
+	{
+		display_draw_rect(x0,0+(i*8),x0+1,(i*8)+4);
+	}
 }
 
 
@@ -253,8 +264,8 @@ void display_update(void)
     }
 }
 
-/* Brief  : This is the hackiest shit ever. don't use this for anything other 
- *          than deverlop testing and stuff! The function is taken out of 
+/* Brief  : This is the hackiest shit ever. don't use this for anything other
+ *          than deverlop testing and stuff! The function is taken out of
  *          its propper contextd.
  * Author : Written by Fredrik Lundeval / Axel Isaksson */
 void display_show_text(void)
@@ -262,7 +273,7 @@ void display_show_text(void)
     int cur_page, cur_char, cur_col;
     int c;
     /* Loop through each row on display */
-    for(cur_page = 0; cur_page < 4; cur_page++) 
+    for(cur_page = 0; cur_page < 4; cur_page++)
     {
         DISPLAY_CHANGE_TO_COMMAND_MODE;
         spi_send_recv(CMD_SET_PAGE_ADDRESS);
@@ -274,14 +285,14 @@ void display_show_text(void)
         DISPLAY_CHANGE_TO_DATA_MODE;
 
         /* Loop through each character in row */
-        for(cur_char = 0; cur_char < 16; cur_char++) 
+        for(cur_char = 0; cur_char < 16; cur_char++)
         {
             /* Get next char to print from buffer */
             c = textbuffer[cur_page][cur_char];
 
             /* Skip extended ascii codes */
             if(c & 0x80)
-                continue; 
+                continue;
 
             /* Print character to screen */
             for(cur_col = 0; cur_col < 8; cur_col++)

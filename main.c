@@ -57,7 +57,7 @@ int main(void)
 void pong_setup(void)
 {
 	/* Settings */
-	uint32_t edge_offset = 32; // distance from screen edge
+	uint32_t edge_offset = 34; // distance from screen edge
 
 	/* Intialize game structs */
 	left_racket.w = 3;
@@ -90,6 +90,8 @@ void pong_work(void)
 	display_draw_actor(&left_racket);
 	display_draw_actor(&right_racket);
 	display_draw_actor(&ball);
+	display_draw_dotline(32-1);
+	display_draw_dotline(128-32-1);
 	display_update();
 
 	/*** Input step ***/
