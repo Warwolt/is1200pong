@@ -19,8 +19,8 @@ static uint8_t  update_counter; /* Tracks 30 updates per second */
 static struct actor ball;
 static struct actor left_racket;
 static struct actor right_racket;
-static int	  p1_score; 	/* Player 1 score tracker */	
-static int    p2_score; 	/* Player 2 score tracker */
+static int	  pl1_score; 	/* Player 1 score tracker */	
+static int    pl2_score; 	/* Player 2 score tracker */
 
 /* Function definitions ------------------------------------------------------*/
 /* Main */
@@ -86,15 +86,31 @@ void pong_setup(void)
 void pong_work(void)
 {
 	uint16_t analog_values[2];
+	char c[16]; /* Temporary character storage */
 
 	/*** Draw step ***/
-	display_cls();
+	display_cls(); /* Clear screen */
+
+	/* Draw actors */
 	display_draw_actor(&left_racket);
 	display_draw_actor(&right_racket);
 	display_draw_actor(&ball);
+	/* Draw playing field */
 	display_draw_dotline(32-1);
 	display_draw_dotline(128-32-1);
-	display_update();
+	/* Draw scores */
+	// player 1
+	num32asc(c, pl1_score);
+	c[1] = '\0';
+	display_print("pl1", 0, 0);
+	display_print(c, 8, 10);
+	// player 2 
+	num32asc(c, pl2_score);
+	c[1] = '\0';
+	display_print("pl2", 128-24, 0);
+	display_print(c, 128-16, 10);
+ 
+ 	display_update(); /* Update screen */
 
 	/*** Input step ***/
 	analog_values[0] = input_get_analog(1);
@@ -108,7 +124,7 @@ void pong_work(void)
 
   	/* move rackets */
     left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
-		right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
+	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
 
 	/* check ball collisons */
 	if(ball.x+ball.w >= 127 | ball.x <= 1)
@@ -129,7 +145,7 @@ void pong_work(void)
  * Author : Michel Bitar */
 int actor_collision(struct actor *a, struct actor *b)
 {
-	if ( (a->x) < (b->x + b->w) &&
+	if ( (a->x) < (b->x + b->w)     &&
 			 (a->x + a->w) > (b->x) &&
 		 	 (a->y) < (b->y + b->h) &&
 			 (a->y + a->h) > (b->y)		)

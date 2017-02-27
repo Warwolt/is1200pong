@@ -60,4 +60,5 @@ void display_update(void);
 void quicksleep(int cyc);
 uint8_t spi_send_recv(uint8_t data);
 void display_debug(volatile int * const addr);
-static void num32asc(char * s, int n);
+void num32asc(char * s, int n);
+char int2char(int n);

@@ -336,9 +336,17 @@ void display_debug(volatile int * const addr)
 
 /* Brief  : converts a number to hexadecimal ASCII digits.
    Author : Fredrik Lundeval / Axel Isaksson */
-static void num32asc(char * s, int n)
+void num32asc(char * s, int n)
 {
   int i;
   for( i = 28; i >= 0; i -= 4 )
     *s++ = "0123456789ABCDEF"[ (n >> i) & 15 ];
+}
+
+/* Brief  : converts a number to hexadecimal ASCII digits.
+ * Author : Rasmus Kallqvist
+ *          orignal code by Fredrik Lundeval / Axel Isaksson */
+char int2char(int n)
+{
+  return "0123456789ABCDEF"[n & 0xF];
 }
