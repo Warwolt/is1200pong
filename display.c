@@ -17,6 +17,7 @@
 
 /* Local variables -----------------------------------------------------------*/
 static uint8_t screen_content[128][4];
+static char textbuffer[4][16];
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Sets a single pixel in the byte-representation of the oled display.
@@ -44,8 +45,6 @@ void display_set_pixel(uint8_t x, uint8_t y)
  *          right corner in (x1, y1). If either corner is out of the screen
  *          boundrary, only part of the rectangle will be drawn.
  * Author : Rasmus Kallqvist */
-// TODO: check if window clipping works, ie ability to draw a rectangle that
-// is partially off-screen by only adding visible part to screen
 void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 {
     uint8_t width = x1 - x0;
@@ -56,7 +55,7 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     if(x1 < x0 || y1 < y0)
         return;
 
-   /* Draw rectangle to screen */
+    /* Draw rectangle to screen */
     for(i = x0; (i < (x0+width)) && (i < DP_WIDTH); i++)
     {
         for(j = y0; (j < (y0+height)) && (j < DP_HEIGHT); j++)
@@ -88,29 +87,6 @@ void display_draw_dotline (int x0)
 	{
 		display_draw_rect(x0,0+(i*8),x0+1,(i*8)+4);
 	}
-}
-
-
-/* Brief  : (something about adding text to a buffer? clear this up!)
- * Author : Fredrik Lundeval / Axel Isaksson */
-void display_print(char *s, int page)
-{
-    int i;
-
-    /* Check if withing display boundry*/
-    if(page < 0 || page > 3)
-        return;
-    /* Check if null pointer */
-    if(!s)
-        return;
-
-    /* Copy string contents to text buffer */
-    for(i = 0; i < 16; i++)
-        if(*s) {
-            textbuffer[page][i] = *s;
-            s++;
-        } else
-            textbuffer[page][i] = ' ';
 }
 
 
@@ -264,39 +240,57 @@ void display_update(void)
     }
 }
 
-/* Brief  : This is the hackiest shit ever. don't use this for anything other
- *          than deverlop testing and stuff! The function is taken out of
- *          its propper contextd.
- * Author : Written by Fredrik Lundeval / Axel Isaksson */
-void display_show_text(void)
+
+/* Brief  : Print text to screen_content buffer, starting at position (x, y)
+ * Author : Rasmus Kallqvist
+ *          original code by Fredrik Lundeval / Axel Isaksson */
+void display_print(char *s, int x, int y)
 {
-    int cur_page, cur_char, cur_col;
-    int c;
-    /* Loop through each row on display */
-    for(cur_page = 0; cur_page < 4; cur_page++)
+    int cur_char, cur_slice, cur_col, cur_row;
+    int c_printed; /* number of characters printed */
+    char textbuff[16];
+
+    /* Check if valid coordinates */
+    if(x < 0 || x > (127 - 8) || y < 0 || y > (31 - 8))
+        return;
+
+    /* Check if empty string */
+    if(!s)
+        return;
+
+    /* Copy string contents to text buffer */
+    for(cur_char = 0; cur_char < 16; cur_char++)
     {
-        DISPLAY_CHANGE_TO_COMMAND_MODE;
-        spi_send_recv(CMD_SET_PAGE_ADDRESS);
-        spi_send_recv(cur_page);
-
-        spi_send_recv(0x0);
-        spi_send_recv(0x10);
-
-        DISPLAY_CHANGE_TO_DATA_MODE;
-
-        /* Loop through each character in row */
-        for(cur_char = 0; cur_char < 16; cur_char++)
+        if(*s)
         {
-            /* Get next char to print from buffer */
-            c = textbuffer[cur_page][cur_char];
+            textbuff[cur_char] = *s;
+            s++;
+        }
+        else
+        {
+            textbuff[cur_char] = ' ';
+        }
+    }
 
-            /* Skip extended ascii codes */
-            if(c & 0x80)
-                continue;
+    /* Copy string to screen buffer */
+    for(c_printed = 0; c_printed < 16; c_printed++)
+    {
+        /* Get next ascii character to print */
+        cur_char = textbuff[c_printed];
 
-            /* Print character to screen */
-            for(cur_col = 0; cur_col < 8; cur_col++)
-                spi_send_recv(font[c*8 + cur_col]);
+        /* Copy bitmap data to screen buffer */
+        for(cur_col = 0; cur_col < 8; cur_col++)
+        {
+            /* Get 8 pixel high slice from character bitmap */
+            cur_slice = font[cur_char*8 + cur_col];
+
+            /* Copy current 8 pixel slice to screen buffer */
+            for(cur_row = 0; cur_row < 8; cur_row++)
+            {
+                /* If pixel in slice is set, then set pixel in buffer */
+                if( (cur_slice >> cur_row) & 0x1 )
+                    display_set_pixel(x+8*c_printed+cur_col, y+cur_row);
+            }
         }
     }
 }
@@ -333,8 +327,8 @@ uint8_t spi_send_recv(uint8_t data)
 */
 void display_debug(volatile int * const addr)
 {
-  display_print("Addr", 1);
-  display_print("Data", 2);
+  display_print("Addr", 0,0);
+  display_print("Data", 7,0);
   num32asc( &textbuffer[1][6], (int) addr );
   num32asc( &textbuffer[2][6], *addr );
   // display_update(); /* Note: you must manually update the display! */
