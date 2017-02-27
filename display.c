@@ -79,32 +79,6 @@ void display_draw_actor(struct actor *a)
 }
 
 
-/* Brief  : (something about adding text to a buffer? clear this up!)
- * Author : Fredrik Lundeval / Axel Isaksson */
-void display_print(char *s, int page)
-{
-    int i;
-
-    /* Check if withing display boundry*/
-    if(page < 0 || page > 3)
-        return;
-
-    /* Check if null pointer */
-    if(!s)
-        return;
-
-    /* Copy string contents to text buffer */
-    for(i = 0; i < 16; i++)
-    {
-        if(*s) {
-            textbuffer[page][i] = *s;
-            s++;
-        } else
-            textbuffer[page][i] = ' ';
-    }
-}
-
-
 /* Brief  : Draw a cosine wave with period and phase determined by arguments.
  *          Period is measured in pixels, the phase in degrees.
  * Author : Rasmus Kallqvist */
@@ -255,47 +229,10 @@ void display_update(void)
     }
 }
 
-/* Brief  : This is the hackiest shit ever. don't use this for anything other 
- *          than deverlop testing and stuff! The function is taken out of 
- *          its propper contextd.
- * Author : Written by Fredrik Lundeval / Axel Isaksson */
-void display_show_text(void)
-{
-    int cur_page, cur_char, cur_col;
-    int c;
-    /* Loop through each row on display */
-    for(cur_page = 0; cur_page < 4; cur_page++) 
-    {
-        DISPLAY_CHANGE_TO_COMMAND_MODE;
-        spi_send_recv(CMD_SET_PAGE_ADDRESS);
-        spi_send_recv(cur_page);
-
-        spi_send_recv(0x0);
-        spi_send_recv(0x10);
-
-        DISPLAY_CHANGE_TO_DATA_MODE;
-
-        /* Loop through each character in row */
-        for(cur_char = 0; cur_char < 16; cur_char++) 
-        {
-            /* Get next char to print from buffer */
-            c = textbuffer[cur_page][cur_char];
-
-            /* Skip extended ascii codes */
-            if(c & 0x80)
-                continue; 
-
-            /* Print character to screen */
-            for(cur_col = 0; cur_col < 8; cur_col++)
-                spi_send_recv(font[c*8 + cur_col]);
-        }
-    }
-}
-
-/* Brief  : Hacky prototype for printing text to screen_content buffer 
+/* Brief  : Print text to screen_content buffer, starting at position (x, y)
  * Author : Rasmus Kallqvist
  *          original code by Fredrik Lundeval / Axel Isaksson */
-void display_hacky_print(char *s, int x, int y)
+void display_print(char *s, int x, int y)
 {
     int cur_char, cur_slice, cur_col, cur_row;
     int c_printed; /* number of characters printed */
@@ -380,8 +317,8 @@ uint8_t spi_send_recv(uint8_t data)
 */
 void display_debug(volatile int * const addr)
 {
-  display_print("Addr", 1);
-  display_print("Data", 2);
+  display_print("Addr", 0,0);
+  display_print("Data", 7,0);
   num32asc( &textbuffer[1][6], (int) addr );
   num32asc( &textbuffer[2][6], *addr );
   // display_update(); /* Note: you must manually update the display! */

@@ -143,3 +143,29 @@ void demo_moving_ball(void)
 			ax += adx;
 			ay += ady;
 }
+
+
+/* Demo for text by Rasmus */
+// todo make this work, doesn't really animate as I wanted it to
+void demo_text_and_graphics(void)
+{
+	static int x0 = 0, y0 = 0;
+
+	/* Track updates */
+	static updates;
+	updates++;	
+
+	/* Draw text */
+	display_cls();
+	display_print("Hello text!", x0, y0);
+	display_update();
+
+	/* Update */
+	if(updates % 60 == 0)
+	{
+		if(x0 == 0)
+			x0 = 40;
+		if(x0 == 40)
+			x0 = 0;
+	}
+}
