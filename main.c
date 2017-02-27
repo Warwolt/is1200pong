@@ -19,7 +19,7 @@ static uint8_t  update_counter; /* Tracks 30 updates per second */
 static struct actor ball;
 static struct actor left_racket;
 static struct actor right_racket;
-static int	  pl1_score; 	/* Player 1 score tracker */	
+static int	  pl1_score = 2; 	/* Player 1 score tracker */	
 static int    pl2_score; 	/* Player 2 score tracker */
 
 /* Function definitions ------------------------------------------------------*/
@@ -96,16 +96,17 @@ void pong_work(void)
 	display_draw_actor(&right_racket);
 	display_draw_actor(&ball);
 	/* Draw playing field */
-	display_draw_dotline(32-1);
-	display_draw_dotline(128-32-1);
+	display_draw_dotline(LEFT_EDGE - 1);
+	display_draw_dotline(RIGHT_EDGE - 1);
+
 	/* Draw scores */
 	// player 1
-	num32asc(c, pl1_score);
+	c[0] = 0x30 + pl1_score;
 	c[1] = '\0';
 	display_print("pl1", 0, 0);
 	display_print(c, 8, 10);
 	// player 2 
-	num32asc(c, pl2_score);
+	c[0] = 0x30 + pl2_score;
 	c[1] = '\0';
 	display_print("pl2", 128-24, 0);
 	display_print(c, 128-16, 10);
@@ -122,22 +123,43 @@ void pong_work(void)
 	if(update_counter > 30)
 		update_counter = 0;
 
-  	/* move rackets */
+  	/* Move rackets */
     left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
 	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
 
-	/* check ball collisons */
+	/* Check ball collisons */
+	// collide with roof and floor 
 	if(ball.x+ball.w >= 127 | ball.x <= 1)
 		ball.dx = -ball.dx;
 	if(ball.y+ball.h >= 31 | ball.y <= 0)
 		ball.dy = -ball.dy;
+	// collide with rackets 
 	if(actor_collision(&right_racket, &ball)
 		 || actor_collision(&left_racket, &ball))
 		ball.dx = -ball.dx;
 	
-	/* move ball */
+	/* Move ball */
 	ball.x += ball.dx;
     ball.y += ball.dy;
+
+    /* Check if score */
+    if(ball.x > RIGHT_EDGE)
+    {
+    	pl1_score++;
+    	ball.x = PLAYINGFIELD_MIDDLE;
+    	ball.dx = -ball.dx;
+    	if(pl1_score == 5) // add win con here later 
+    		pl1_score = 0;
+    }
+    if(ball.x < LEFT_EDGE)
+    {
+    	pl2_score++;
+    	ball.x = PLAYINGFIELD_MIDDLE;
+    	ball.dx = -ball.dx;
+    	if(pl2_score == 5)
+    		pl2_score = 0; // add win con here 
+    }
+
 }
 
 
