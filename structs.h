@@ -14,8 +14,8 @@
  * Author : Michel Bitar */
 struct actor
 {
-    int x;
-    int y;
+    float x;
+    float y;
     int w;
     int h;
     float dx;

@@ -23,7 +23,7 @@
 /* Function prototypes -------------------------------------------------------*/
 /* Pong game */
 void pong_setup(void);
-void pong_work(uint16_t analog_values[]);	
+void pong_work(void); // note: maybe rename to pong_2p_mode?	
 /* Init and interrupts */
 void user_isr(void);
 void init_mcu(void);

@@ -72,7 +72,11 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
 * Author  : Rasmus Kallqvist */  
 void display_draw_actor(struct actor *a)
 {
-    display_draw_rect(a->x, a->y, a->x + a->w, a->y+a->h); 
+    int x0 = (int) round(a->x);
+    int y0 = (int) round(a->y);
+    int x1 = (int) round(a->x + a->w);
+    int y1 = (int) round(a->y + a->h);
+    display_draw_rect(x0, y0, x1, y1); 
 }
 
 

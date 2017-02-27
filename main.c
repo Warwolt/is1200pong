@@ -26,8 +26,6 @@ static struct actor right_racket;
 /* Main */
 int main(void)
 {
-	uint16_t analog_values[2];
-
 	/* Low level initialization */
 	init_mcu();
 
@@ -50,7 +48,7 @@ int main(void)
 		timeout_flag = 0; // reset timeout flag
 
 		/* Iterate game state */
-		pong_work(analog_values);
+		pong_work();
 	}
 
 	return 0;
@@ -60,58 +58,64 @@ int main(void)
    Author : Michel Bitar */
 void pong_setup(void)
 {
+	/* Settings */
+	uint32_t edge_offset = 32; // distance from screen edge 
+
+	/* Intialize game structs */
 	left_racket.w = 3;
 	left_racket.h = 9;
-	left_racket.x = 8 - 1;
+	left_racket.x = edge_offset - 1;
 	left_racket.y = 16 - 1 - (left_racket.h / 2);
 
 	right_racket.w = 3;
 	right_racket.h = 9;
-	right_racket.x = 128 - 1 - right_racket.w - 3;
+	right_racket.x = 128 - 1 - right_racket.w - edge_offset;
 	right_racket.y = 16 - 1 - (right_racket.h / 2);
 
 	ball.w = 2;
 	ball.h = 2;
 	ball.x = 64-1;
 	ball.y = 16-1;
-	ball.dx = 1;
+	ball.dx = 1; 
 	ball.dy = -1;
 }
 
 /* Brief  : Carries out one iteration of the pong game state with the sequence;
  * 			draw game state, read inputs, and update game state.
  * Author : Michel Bitar and Rasmus Kallqvist */
-void pong_work(uint16_t analog_values[])
+void pong_work(void)
 {
-		/* Draw step */
-		display_cls();
-		display_draw_actor(&left_racket);
-		display_draw_actor(&right_racket);
-		display_draw_actor(&ball);
-		display_update();
+	uint16_t analog_values[2];
 
-		/* Input step */
-		analog_values[0] = input_get_analog(1);
-		analog_values[1] = input_get_analog(0);
+	/*** Draw step ***/
+	display_cls();
+	display_draw_actor(&left_racket);
+	display_draw_actor(&right_racket);
+	display_draw_actor(&ball);
+	display_update();
 
-		/* Update step */
-		// track number of updates 
-		update_counter++;
-		if(update_counter > 30)
-			update_counter = 0;
-	  	
-	  	// move rackets
-    	left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
-    	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
-		
-		// move ball
-		if(ball.x+ball.w >= 127 | ball.x <= 1)
-			ball.dx = -ball.dx;
-		if(ball.y+ball.h >= 31 | ball.y <= 0)
-			ball.dy = -ball.dy;
+	/*** Input step ***/
+	analog_values[0] = input_get_analog(1);
+	analog_values[1] = input_get_analog(0);
 
-		ball.x += ball.dx;
-		ball.y += ball.dy;
+	/*** Update step ***/
+	/* Track updates */
+	update_counter++;		
+	if(update_counter > 30)
+		update_counter = 0;
+  	
+  	/* move rackets */
+	left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
+	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
+	
+	/* move ball */
+	if(ball.x+ball.w >= 127 | ball.x <= 1)
+		ball.dx = -ball.dx;
+	if(ball.y+ball.h >= 31 | ball.y <= 0)
+		ball.dy = -ball.dy;
+
+	ball.x += ball.dx;
+	ball.y += ball.dy;
 }
 
 
