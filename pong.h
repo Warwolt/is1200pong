@@ -14,7 +14,7 @@
 #include "structs.h"	/* Contains definitions for actor struct */
 
 /* Defines -------------------------------------------------------------------*/
-#define		MATCH_SCORE			5
+#define		MATCH_SCORE			3
 #define 	PLAYINGFIELD_W		64
 #define 	LEFT_EDGE			(DISPLAY_WIDTH - PLAYINGFIELD_W) / 2
 #define 	RIGHT_EDGE			DISPLAY_WIDTH - PLAYINGFIELD_W / 2
@@ -27,8 +27,7 @@ enum player	    {no_player, player_1, player_2};
 /* Function prototypes -------------------------------------------------------*/
 /* Pong game */
 void pong_setup(void);
-void pong_work(void); // note: maybe rename to pong_2p_mode?	
-void pong_draw_step(void);
+void pong_work(void); 
 enum game_state pong_update_step(uint16_t* analog_values,
 					  enum	game_state current_state);
 enum player pong_update_ball(void);

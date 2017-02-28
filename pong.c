@@ -16,8 +16,6 @@ static struct  	actor left_racket;
 static struct  	actor right_racket;
 static int	   	g_pl1_score; 	/* Player 1 score tracker */
 static int     	g_pl2_score; 	/* Player 2 score tracker */
-//static enum 	game_state current_state = match_begin;
-//static enum 	game_state next_state;
 static enum 	player 	   g_winning_player;
 
 /* Function definitions ------------------------------------------------------*/
@@ -55,26 +53,44 @@ void pong_work(void)
 	static enum	game_state current_state = match_begin; //match_begin
 	enum game_state next_state;
 	uint16_t analog_values[2];
+	int32_t c; // Temporary character storage
 
 	/* Draw step */
-	// todo: turn this into its own function that takes current state as arg
 	display_cls();
-	if(current_state == match_begin)
+	switch(current_state)
 	{
-		display_print("Get ready", 32, 12);
-	}
-	else if(current_state == match_end)
-	{
-		if(g_winning_player == player_1)
-			display_print("player 1", 32, 8);
-			display_print("wins!", 48, 16);
-		if(g_winning_player == player_2)
-			display_print("player 2", 32, 8);
-			display_print("wins!", 48, 16);
-	}
-	else
-	{
-		pong_draw_step();
+		/* Draw match begin message */
+		case(match_begin) :
+			display_print("Get ready", 32, 12);
+			break;
+
+		/* Draw player won message */
+		case(match_end) : 
+			if(g_winning_player == player_1)
+				display_print("Player 1", 32, 8);
+				display_print("wins!", 48, 16);
+			if(g_winning_player == player_2)
+				display_print("Player 2", 32, 8);
+				display_print("wins!", 48, 16);
+			break;
+
+		/* Draw pong round */
+		default : 
+			/* Draw actors */
+			display_draw_actor(&left_racket);
+			display_draw_actor(&right_racket);
+			display_draw_actor(&ball);
+			/* Draw playing field */
+			display_draw_dotline(LEFT_EDGE - 1, 3);
+			display_draw_dotline(RIGHT_EDGE - 1, 3);
+			/* Draw scores */
+			c = 0x30 + g_pl1_score;
+			display_print("pl1", 0, 0);
+			display_print((char*)&c, 8, 10);
+			c  = 0x30 + g_pl2_score;
+			display_print("pl2", 128-24, 0);
+			display_print((char*)&c, 128-16, 10);
+			break;
 	}
  	display_update();
 
@@ -85,36 +101,13 @@ void pong_work(void)
 	/* Update step */
 	next_state = pong_update_step(analog_values, current_state);
 
-	/* Update state */
+	/* Update state machine */
 	current_state = next_state;
 }
-
-void pong_draw_step(void)
-{
-	int32_t c; // Temporary character storage
-
-	/* Draw actors */
-	display_draw_actor(&left_racket);
-	display_draw_actor(&right_racket);
-	display_draw_actor(&ball);
-	/* Draw playing field */
-	display_draw_dotline(LEFT_EDGE - 1, 3);
-	display_draw_dotline(RIGHT_EDGE - 1, 3);
-	/* Draw scores */
-	c = 0x30 + g_pl1_score;
-	display_print("pl1", 0, 0);
-	display_print((char*)&c, 8, 10);
-	c  = 0x30 + g_pl2_score;
-	display_print("pl2", 128-24, 0);
-	display_print((char*)&c, 128-16, 10);
-}
-
 
 /* Brief  : Carries out the update step of one pong game iteration.
  * 			States are changed if points are scored or time has elapsed.
  * Author : Michel Bitar and Rasmus Kallqvist */
-// note	: this function is growing a bit large, so keep an eye on it for when
-// its time to cut it up into neater more controlled pieces.
 enum game_state pong_update_step(uint16_t* analog_values,
 					  enum	game_state current_state)
 {
