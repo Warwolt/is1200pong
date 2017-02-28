@@ -22,11 +22,13 @@
 
 /* Enums ---------------------------------------------------------------------*/
 enum game_state {match_begin, round_begin, round_playing, match_end};
+enum player	    {player_1, player_2};
 
 /* Function prototypes -------------------------------------------------------*/
 /* Pong game */
 void pong_setup(void);
 void pong_work(void); // note: maybe rename to pong_2p_mode?	
+void pong_draw_step(void);
 void pong_update_step(uint16_t* analog_values);
 void pong_update_ball(void);
 int actor_collision(struct actor *a, struct actor *b);

@@ -328,8 +328,8 @@ uint8_t spi_send_recv(uint8_t data)
 void display_debug(volatile int * const addr)
 {
     char textbuffer[2][16];
-    num32asc( &textbuffer[0][6], (int) addr );
-    num32asc( &textbuffer[1][6], *addr );
+    num32asc( &textbuffer[0][0], (int) addr );
+    num32asc( &textbuffer[1][0], *addr );
 
     display_cls();
     display_print("Addr", 0,0);

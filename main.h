@@ -21,7 +21,6 @@
 #define   	TMR2PRESCALER   16 			    // (80 MHz / 16) = 5 MHz
 #define   	TMR2PERIOD      ( (CLOCKFREQ / TMR2PRESCALER) * TIMEOUTPERIOD ) - 1
 /* Pong game */
-#define		MATCH_SCORE			5
 #define 	PLAYINGFIELD_W		64
 #define 	LEFT_EDGE			(DISPLAY_WIDTH - PLAYINGFIELD_W) / 2
 #define 	RIGHT_EDGE			DISPLAY_WIDTH - PLAYINGFIELD_W / 2

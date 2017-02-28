@@ -24,18 +24,15 @@ int main(void)
 	init_mcu();
 
 	/* Initialization */
-	led_write(0x3); // signal bootup
+	led_write(0x1); // signal bootup
 	init_tim();
 	init_adc();
 	init_display();
 	enable_interrupt();
-	led_write(0x1); // bootup done
+	led_write(0x0); // bootup done
 
 	/* Set up game */
 	pong_setup();
-
-	//test
-	int test = 6;
 
 	/* Run game */
 	while(1)
@@ -44,10 +41,8 @@ int main(void)
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
 
-		display_debug((volatile int*)&test);
-
 		/* Iterate game state */
-		//pong_work();
+		pong_work();
 	}
 
 	return 0;
