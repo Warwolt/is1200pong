@@ -13,6 +13,7 @@
 #include "input.h"		/* Read potentiometer and buttons values */
 #include "structs.h"	/* Contains definitions for actor struct */
 #include "pong.h"		/* Contains pong game logic */
+#include "menu.h"		/* Menu state machines */
 
 /* Defines -------------------------------------------------------------------*/
 /* Timer */
