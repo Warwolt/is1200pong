@@ -14,11 +14,11 @@ static int 		update_counter; /* Tracks 30 updates per second */
 static struct  	actor ball;
 static struct  	actor left_racket;
 static struct  	actor right_racket;
-static int	   	g_pl1_score; 	/* Player 1 score tracker */	
-static int     	g_pl2_score; 	/* Player 2 score tracker */
+static int	   	pl1_score; 	/* Player 1 score tracker */	
+static int     	pl2_score; 	/* Player 2 score tracker */
 //static enum 	game_state current_state = match_begin;
-//static enum 	game_state next_state; 
-static enum 	player 	   g_winning_player;
+static enum 	game_state g_next_state; 
+static enum 	player 	   winning_player;
 
 /* Function definitions ------------------------------------------------------*/
 /* Brief  : Set up pong game and initialize file local variables.
@@ -52,23 +52,22 @@ void pong_setup(void)
  * Author : Michel Bitar and Rasmus Kallqvist */
 void pong_work(void)
 {
-	static enum	game_state current_state = match_begin; //match_begin
-	enum game_state next_state;
+	static enum	game_state current_state = match_begin;
+	static enum game_state next_state;
 	uint16_t analog_values[2];
 
 	/* Draw step */
-	// todo: turn this into its own function that takes current state as arg
 	display_cls(); 
 	if(current_state == match_begin)
 	{ 
-		display_print("Get ready", 32, 12);
+		display_print("Get ready!", 32, 12);
 	}
 	else if(current_state == match_end)
 	{
-		if(g_winning_player == player_1)
+		if(winning_player == player_1)
 			display_print("player 1", 32, 8);
 			display_print("wins!", 48, 16);
-		if(g_winning_player == player_2)
+		if(winning_player == player_2)
 			display_print("player 2", 32, 8);
 			display_print("wins!", 48, 16);
 	}
@@ -83,10 +82,10 @@ void pong_work(void)
 	analog_values[1] = 1023 - input_get_analog(0); 	/* Player 2 */
 
 	/* Update step */
-	next_state = pong_update_step(analog_values, current_state);
+	pong_update_step(analog_values, current_state);
 
 	/* Update state */
-	current_state = next_state;
+	current_state = g_next_state;
 }
 
 void pong_draw_step(void)
@@ -101,10 +100,10 @@ void pong_draw_step(void)
 	display_draw_dotline(LEFT_EDGE - 1);
 	display_draw_dotline(RIGHT_EDGE - 1);
 	/* Draw scores */
-	c = 0x30 + g_pl1_score;
+	c = 0x30 + pl1_score;
 	display_print("pl1", 0, 0);
 	display_print((char*)&c, 8, 10);
-	c  = 0x30 + g_pl2_score;
+	c  = 0x30 + pl2_score;
 	display_print("pl2", 128-24, 0);
 	display_print((char*)&c, 128-16, 10);
 }
@@ -120,7 +119,6 @@ enum game_state pong_update_step(uint16_t* analog_values,
 {
 	static int updates_waited = 0;
 	enum game_state next_state;
-	enum player scoring_player;
 	uint8_t scored_point = 0;
 	uint8_t match_point = 0;
 	uint8_t done_waiting = 0;
@@ -129,108 +127,96 @@ enum game_state pong_update_step(uint16_t* analog_values,
     left_racket.y = analog_values[0] * (32 - left_racket.h) / 1024;
 	right_racket.y = analog_values[1] * (32 - right_racket.h) / 1024;
 
-	switch(current_state)
+	/* Wait a bit */
+	if(current_state == match_begin)
 	{
-		/* Wait a little at start of match */
-		case (match_begin) :
-			updates_waited++; 
-			if(updates_waited == 45)
-				done_waiting = 1;		
-			break;
+		updates_waited++; 
+		if(updates_waited == 45)
+			done_waiting = 1;
+	}	
+	if(current_state == round_begin)
+	{
+		updates_waited++; 
+		if(updates_waited == 15)
+			done_waiting = 1;
+	}
+	if(current_state == match_end)
+	{
+		updates_waited++; 
+		if(updates_waited == 60)
+			done_waiting = 1;
+	}
 
-		/* Wait a little at start of reach round */
-		case (round_begin) :
-			updates_waited++; 
-			if(updates_waited == 15)
-				done_waiting = 1;
-			break;
-
-		/* Update ball when round is underway */
-		case (round_playing) :
-			scoring_player = pong_update_ball();		
-			break;
-		
-		/* Wait a bit little end of match */
-		case (match_end) :
-			updates_waited++; 
-			if(updates_waited == 60)
-				done_waiting = 1;
-			break;
+	/* Update ball */
+	if(current_state == round_playing)
+	{
+		pong_update_ball();		
 	}
 
     /* Check if score */
-	switch(scoring_player)
-	{
-		case(player_1)  :
-	    	g_pl1_score++;
-
-	    	scored_point = 1;
-	    	if(g_pl1_score == MATCH_SCORE)
-	    	{
-	    		g_winning_player = player_1;
-	    		match_point = 1;
-	    	}
-			break;
-
-		case(player_2)  :
-	    	g_pl2_score++;
-	    	scored_point = 1;
-	    	if(g_pl2_score == MATCH_SCORE)
-	    	{
-	    		g_winning_player = player_2;
-	    		match_point = 1;
-	    	}
-			break;
-
-		case(no_player) :
-			break;
-	}
+    if(ball.x > RIGHT_EDGE)
+    {
+    	pl1_score++;
+    	scored_point = 1;
+    	ball.x = PLAYINGFIELD_MIDDLE;
+    	ball.dx = -ball.dx;
+    	if(pl1_score == MATCH_SCORE)
+    	{
+    		winning_player = player_1;
+    		match_point = 1;
+    	}
+    }
+    if(ball.x < LEFT_EDGE)
+    {
+    	pl2_score++;
+		scored_point = 1;
+    	ball.x = PLAYINGFIELD_MIDDLE;
+    	ball.dx = -ball.dx;
+    	if(pl2_score == MATCH_SCORE)
+    	{
+    		winning_player = player_2;
+    		match_point = 1;
+    	}
+    }	
 
     /* Update states */
     if(match_point)
     {
-    	g_pl1_score = 0;
-    	g_pl2_score = 0;
-    	next_state = match_end;
+    	g_next_state = match_end;
+    	pl1_score = 0;
+    	pl2_score = 0;
     }
     else if(scored_point)
     {
     	updates_waited = 0;
-    	next_state = round_begin;
+    	g_next_state = round_begin;
     }
-    else if(current_state == match_begin && done_waiting)
+    else if(done_waiting && current_state == match_begin)
     {
     	updates_waited = 0;
     	done_waiting = 0;
-    	next_state = round_begin;
+    	g_next_state = round_begin;
     }    
-    else if(current_state == round_begin && done_waiting)
+    else if(done_waiting && current_state == round_begin)
     {
     	updates_waited = 0;
     	done_waiting = 0;
-    	next_state = round_playing;
+    	g_next_state = round_playing;
     }
-    else if(current_state == match_end && done_waiting)
+    else if(done_waiting && current_state == match_end)
     {
     	updates_waited = 0;
     	done_waiting = 0;
-    	next_state = match_begin;
-    }
-    else /* Default */
-    {
-    	next_state = current_state;
+    	g_next_state = match_begin;
     }
 
     return next_state;
 }
 
-/* Brief  : Ball part of game state update step.
- *			Returns which player scored.
+/* Brief  : Ball part of game state update step
  * Author : Michel Bitar and Rasmus Kallqvist */
-enum player pong_update_ball(void)
+void pong_update_ball(void)
 {
-	enum player scoring_player;
-
 	/* Check ball collisons */
 	// collide with roof and floor 
 	if(ball.x+ball.w >= 127 | ball.x <= 1)
@@ -245,26 +231,6 @@ enum player pong_update_ball(void)
 	/* Move ball */
 	ball.x += ball.dx;
     ball.y += ball.dy;
-
-    /* Check if scored */
-    if(ball.x > RIGHT_EDGE)
-    {
-    	ball.x = PLAYINGFIELD_MIDDLE;
-    	ball.dx = -ball.dx;
-    	scoring_player = player_1;
-    }
-    else if(ball.x < LEFT_EDGE)
-    {
-    	ball.x = PLAYINGFIELD_MIDDLE;
-    	ball.dx = -ball.dx;
-    	scoring_player = player_2;
-    }	
-    else
-    {
-    	scoring_player = no_player;
-    }
-
-    return scoring_player;
 }
 
 
