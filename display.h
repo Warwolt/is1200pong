@@ -50,7 +50,7 @@ void display_set_pixel(uint8_t x, uint8_t y);
 void display_print(char *s, int x, int y);
 void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1);
 void display_draw_actor(struct actor *a);
-void display_draw_dotline (int x0);
+void display_draw_dotline (int x0, int len);
 void display_draw_cos(uint32_t period, uint32_t phase);
 void display_cls(void);
 /* Device drivers */

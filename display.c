@@ -79,12 +79,12 @@ void display_draw_actor(struct actor *a)
 
 /* Brief  : Draw right and left doted line
  * Author : Michel Bitar*/
-void display_draw_dotline (int x0)
+void display_draw_dotline (int x0, int len)
 {
   int i;
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < (32/len); i++)
 	{
-		display_draw_rect(x0,0+(i*8),x0+1,(i*8)+4);
+		display_draw_rect(x0,0+(i*len*2),x0+1,0+(i*len*2)+len);
 	}
 }
 

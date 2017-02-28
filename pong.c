@@ -14,10 +14,10 @@ static int 		update_counter; /* Tracks 30 updates per second */
 static struct  	actor ball;
 static struct  	actor left_racket;
 static struct  	actor right_racket;
-static int	   	g_pl1_score; 	/* Player 1 score tracker */	
+static int	   	g_pl1_score; 	/* Player 1 score tracker */
 static int     	g_pl2_score; 	/* Player 2 score tracker */
 //static enum 	game_state current_state = match_begin;
-//static enum 	game_state next_state; 
+//static enum 	game_state next_state;
 static enum 	player 	   g_winning_player;
 
 /* Function definitions ------------------------------------------------------*/
@@ -58,9 +58,9 @@ void pong_work(void)
 
 	/* Draw step */
 	// todo: turn this into its own function that takes current state as arg
-	display_cls(); 
+	display_cls();
 	if(current_state == match_begin)
-	{ 
+	{
 		display_print("Get ready", 32, 12);
 	}
 	else if(current_state == match_end)
@@ -74,9 +74,9 @@ void pong_work(void)
 	}
 	else
 	{
-		pong_draw_step();				
+		pong_draw_step();
 	}
- 	display_update(); 
+ 	display_update();
 
 	/* Input step */
 	analog_values[0] = 1023 - input_get_analog(0);	/* Player 1 */
@@ -91,15 +91,15 @@ void pong_work(void)
 
 void pong_draw_step(void)
 {
-	int32_t c; // Temporary character storage 
+	int32_t c; // Temporary character storage
 
 	/* Draw actors */
 	display_draw_actor(&left_racket);
 	display_draw_actor(&right_racket);
 	display_draw_actor(&ball);
 	/* Draw playing field */
-	display_draw_dotline(LEFT_EDGE - 1);
-	display_draw_dotline(RIGHT_EDGE - 1);
+	display_draw_dotline(LEFT_EDGE - 1, 3);
+	display_draw_dotline(RIGHT_EDGE - 1, 3);
 	/* Draw scores */
 	c = 0x30 + g_pl1_score;
 	display_print("pl1", 0, 0);
@@ -133,26 +133,26 @@ enum game_state pong_update_step(uint16_t* analog_values,
 	{
 		/* Wait a little at start of match */
 		case (match_begin) :
-			updates_waited++; 
+			updates_waited++;
 			if(updates_waited == 45)
-				done_waiting = 1;		
+				done_waiting = 1;
 			break;
 
 		/* Wait a little at start of reach round */
 		case (round_begin) :
-			updates_waited++; 
+			updates_waited++;
 			if(updates_waited == 15)
 				done_waiting = 1;
 			break;
 
 		/* Update ball when round is underway */
 		case (round_playing) :
-			scoring_player = pong_update_ball();		
+			scoring_player = pong_update_ball();
 			break;
-		
+
 		/* Wait a bit little end of match */
 		case (match_end) :
-			updates_waited++; 
+			updates_waited++;
 			if(updates_waited == 60)
 				done_waiting = 1;
 			break;
@@ -203,7 +203,7 @@ enum game_state pong_update_step(uint16_t* analog_values,
     	updates_waited = 0;
     	done_waiting = 0;
     	next_state = round_begin;
-    }    
+    }
     else if(current_state == round_begin && done_waiting)
     {
     	updates_waited = 0;
@@ -232,16 +232,16 @@ enum player pong_update_ball(void)
 	enum player scoring_player;
 
 	/* Check ball collisons */
-	// collide with roof and floor 
+	// collide with roof and floor
 	if(ball.x+ball.w >= 127 | ball.x <= 1)
 		ball.dx = -ball.dx;
 	if(ball.y+ball.h >= 31 | ball.y <= 0)
 		ball.dy = -ball.dy;
-	// collide with rackets 
+	// collide with rackets
 	if(actor_collision(&ball, &right_racket)
 		 || actor_collision(&ball, &left_racket))
 		ball.dx = -ball.dx;
-	
+
 	/* Move ball */
 	ball.x += ball.dx;
     ball.y += ball.dy;
@@ -258,7 +258,7 @@ enum player pong_update_ball(void)
     	ball.x = PLAYINGFIELD_MIDDLE;
     	ball.dx = -ball.dx;
     	scoring_player = player_2;
-    }	
+    }
     else
     {
     	scoring_player = no_player;
