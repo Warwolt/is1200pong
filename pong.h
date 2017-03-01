@@ -19,7 +19,12 @@
 #define 	LEFT_EDGE			(DISPLAY_WIDTH - PLAYINGFIELD_W) / 2
 #define 	RIGHT_EDGE			DISPLAY_WIDTH - PLAYINGFIELD_W / 2
 #define		PLAYINGFIELD_MIDDLE DISPLAY_WIDTH / 2 - 1
-
+#define 	BALL_SPEEDUP		1.1
+#define 	BALL_MAXSPEED		5
+/* Macro */
+#define 	ABS(x)				(x*x)/x
+#define 	SGN(x)				ABS(x)/x
+	
 /* Enums ---------------------------------------------------------------------*/
 enum game_state {match_begin, round_begin, round_playing, match_end};
 enum player	    {no_player, player_1, player_2};

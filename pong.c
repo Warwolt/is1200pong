@@ -28,12 +28,12 @@ void pong_setup(void)
 
 	/* Intialize game structs */
 	g_left_racket.w = 3;
-	g_left_racket.h = 9;
+	g_left_racket.h = 9; 
 	g_left_racket.x = edge_offset;
 	g_left_racket.y = 16 - 1 - (g_left_racket.h / 2);
 
-	g_right_racket.w = 3;
-	g_right_racket.h = 9;
+	g_right_racket.w = g_left_racket.w;
+	g_right_racket.h = g_left_racket.h;
 	g_right_racket.x = 128 - 1 - g_right_racket.w - edge_offset;
 	g_right_racket.y = 16 - 1 - (g_right_racket.h / 2);
 
@@ -53,7 +53,7 @@ void pong_work(void)
 	static enum	game_state current_state = match_begin;
 	enum game_state next_state;
 	uint16_t analog_values[2];
-	uint32_t c; // Temporary character storage
+	uint32_t c; // ascii values
 
 	/* Draw step */
 	display_cls();
@@ -128,7 +128,7 @@ enum game_state pong_update_step(uint16_t* analog_values,
 			/* Start first round after 1.5 seconds */
 			if(updates_waited == 45) 
 			{
-				updates_waited = 0; // reset
+				updates_waited = 0; // reset counter 
 				next_state = round_begin;
 			}
 			break;
@@ -139,7 +139,8 @@ enum game_state pong_update_step(uint16_t* analog_values,
 			/* Pause 0.5 second inbetween rounds */
 			if(updates_waited == 15)
 			{
-				updates_waited = 0; // reset
+				updates_waited = 0; // reset counter
+				g_ball.dx = g_ball.dx / g_ball.dx; // reset speed, keep sign
 				next_state = round_playing;
 			}
 			break;
@@ -202,118 +203,6 @@ enum game_state pong_update_step(uint16_t* analog_values,
 }
 
 
-/* Brief  : Carries out the update step of one pong game iteration.
- * 			States are changed if points are scored or time has elapsed.
- * Author : Michel Bitar and Rasmus Kallqvist */
-enum game_state pong_update_step_old(uint16_t* analog_values,
-					  enum	game_state current_state)
-{
-	static int updates_waited = 0;
-	enum game_state next_state;
-	enum player scoring_player;
-	uint8_t scored_point = 0;
-	uint8_t match_point = 0;
-	uint8_t done_waiting = 0;
-
-  	/* Move rackets */
-    g_left_racket.y = analog_values[0] * (32 - g_left_racket.h) / 1024;
-	g_right_racket.y = analog_values[1] * (32 - g_right_racket.h) / 1024;
-
-	switch(current_state)
-	{
-		/* Wait a little at start of match */
-		case (match_begin) :
-			updates_waited++;
-			if(updates_waited == 45)
-				done_waiting = 1;
-			break;
-
-		/* Wait a little at start of reach round */
-		case (round_begin) :
-			updates_waited++;
-			if(updates_waited == 15)
-				done_waiting = 1;
-			break;
-
-		/* Update g_ball when round is underway */
-		case (round_playing) :
-			scoring_player = pong_update_ball();
-			break;
-
-		/* Wait a bit little end of match */
-		case (match_end) :
-			updates_waited++;
-			if(updates_waited == 60)
-				done_waiting = 1;
-			break;
-	}
-
-    /* Check if score */
-	switch(scoring_player)
-	{
-		case(player_1)  :
-	    	g_pl1_score++;
-
-	    	scored_point = 1;
-	    	if(g_pl1_score == MATCH_SCORE)
-	    	{
-	    		g_winning_player = player_1;
-	    		match_point = 1;
-	    	}
-			break;
-
-		case(player_2)  :
-	    	g_pl2_score++;
-	    	scored_point = 1;
-	    	if(g_pl2_score == MATCH_SCORE)
-	    	{
-	    		g_winning_player = player_2;
-	    		match_point = 1;
-	    	}
-			break;
-
-		case(no_player) :
-			break;
-	}
-
-    /* Update states */
-    if(match_point)
-    {
-    	g_pl1_score = 0;
-    	g_pl2_score = 0;
-    	next_state = match_end;
-    }
-    else if(scored_point)
-    {
-    	updates_waited = 0;
-    	next_state = round_begin;
-    }
-    else if(current_state == match_begin && done_waiting)
-    {
-    	updates_waited = 0;
-    	done_waiting = 0;
-    	next_state = round_begin;
-    }
-    else if(current_state == round_begin && done_waiting)
-    {
-    	updates_waited = 0;
-    	done_waiting = 0;
-    	next_state = round_playing;
-    }
-    else if(current_state == match_end && done_waiting)
-    {
-    	updates_waited = 0;
-    	done_waiting = 0;
-    	next_state = match_begin;
-    }
-    else /* Default */
-    {
-    	next_state = current_state;
-    }
-
-    return next_state;
-}
-
 /* Brief  : Ball part of game state update step.
  *			Returns which player scored.
  * Author : Michel Bitar and Rasmus Kallqvist */
@@ -321,16 +210,28 @@ enum player pong_update_ball(void)
 {
 	enum player scoring_player;
 
-	/* Check ball collisons */
-	// collide with roof and floor
+	/* Collide ball with roof and floor */
 	if(g_ball.x+g_ball.w >= 127 | g_ball.x <= 1)
 		g_ball.dx = -g_ball.dx;
 	if(g_ball.y+g_ball.h >= 31 | g_ball.y <= 0)
 		g_ball.dy = -g_ball.dy;
-	// collide with rackets
+	
+	/* Collide ball with rackets */
 	if(actor_collision(&g_ball, &g_right_racket)
 		 || actor_collision(&g_ball, &g_left_racket))
-		g_ball.dx = -g_ball.dx;
+	{
+		/* Bounce back ball and increase speed */
+		g_ball.dx = -g_ball.dx * BALL_SPEEDUP;
+		/* Cap ball speed to a max value */
+		if(ABS(g_ball.dx) >= BALL_MAXSPEED)
+		{
+			g_ball.dx = SGN(g_ball.dx) * BALL_MAXSPEED;
+		}		
+	}
+
+	// developer test 
+	if(ABS(g_ball.dx) == BALL_MAXSPEED)
+		led_write(0xFF);
 
 	/* Move ball */
 	g_ball.x += g_ball.dx;

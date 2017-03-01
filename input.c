@@ -42,7 +42,6 @@ uint16_t input_get_analog(uint8_t pin)
 	return ADC1BUF0;
 }
 
-
 /* 	Brief	: Initialize the ADC peripheral
 	Author	: Original code by Axel Isaksson, edited by Rasmus Kallqvist */
 void init_adc(void)
