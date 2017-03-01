@@ -51,6 +51,7 @@ void pong_setup(void)
 void pong_work(void)
 {
 	static enum	game_state current_state = match_begin;
+	static int updates_waited;
 	enum game_state next_state;
 	uint16_t analog_values[2];
 	uint32_t c; // ascii values
@@ -61,7 +62,22 @@ void pong_work(void)
 	{
 		/* Draw match begin message */
 		case(match_begin) :
-			display_print("Get ready", 32, 12);
+			updates_waited++;
+			/* "Get ready" for 2 seconds */
+			if(updates_waited <= 60)
+			{
+				display_print("Get ready", 32, 12);
+			}
+			/* "Playing to N" for 2 seconds */
+			if(updates_waited > 60)
+			{
+				display_print("Playing to ", 20, 12);
+				c = 0x30 + MATCH_SCORE;
+				display_print((char*)&c, 104, 12);
+			}
+			/* Reset counter after 4 seconds */
+			if(updates_waited == 120)
+				updates_waited = 0;
 			break;
 
 		/* Draw player won message */
@@ -125,8 +141,8 @@ enum game_state pong_update_step(uint16_t* analog_values,
 		/* Start of match */
 		case(match_begin):
 			updates_waited++;
-			/* Start first round after 1.5 seconds */
-			if(updates_waited == 45) 
+			/* Start first round after 4 seconds */
+			if(updates_waited == 120) 
 			{
 				updates_waited = 0; // reset counter 
 				next_state = round_begin;

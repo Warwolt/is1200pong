@@ -33,6 +33,7 @@ enum player	    {no_player, player_1, player_2};
 /* Pong game */
 void pong_setup(void);
 void pong_work(void); 
+void pong_draw_step(enum game_state current_state);
 enum game_state pong_update_step(uint16_t* analog_values,
 					  enum	game_state current_state);
 enum player pong_update_ball(void);
