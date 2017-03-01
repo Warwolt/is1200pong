@@ -25,6 +25,7 @@ int main(void)
 	uint8_t button_state;
 	uint8_t prev_button_state = 0; 
 	uint8_t game_paused = 0;
+	uint8_t start_pressed = 0;
 
 	/* Low level initialization */
 	init_mcu();
@@ -39,6 +40,22 @@ int main(void)
 
 	/* Set up game */
 	pong_setup();
+
+	/* Menu screen */
+	while(!start_pressed)
+	{
+		/* Push button starts game */
+		button_state = input_get_btn(3);
+		if(button_state & !prev_button_state)
+			start_pressed = 1;
+		prev_button_state = button_state;
+
+		/* Show logo */
+		display_cls();
+		//display_print("press start", 19, 12);
+		display_draw_logo();
+		display_update();
+	}
 
 	/* Run game */
 	while(1)

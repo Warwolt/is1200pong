@@ -1,6 +1,6 @@
 /*
 ********************************************************************************
-* name	 : 	display.h
+* name	 : 	font.h
 * author : 	Fredrik Lundeval / Axel Isaksson, 2015
 * brief  : 	Containts font for use with print functions 
 ********************************************************************************

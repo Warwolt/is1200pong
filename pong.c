@@ -10,7 +10,6 @@
 #include "pong.h"
 
 /* Local variables -----------------------------------------------------------*/
-static int 		update_counter; /* Tracks 30 updates per second */
 static struct  	actor g_ball;
 static struct  	actor g_left_racket;
 static struct  	actor g_right_racket;
@@ -77,12 +76,12 @@ void pong_work(void)
 			/* "Get ready" for 2 seconds */
 			if(updates_waited <= 60)
 			{
-				display_print("Get ready", 32, 12);
+				display_print("Get ready", 28, 12);
 			}
 			/* "Playing to N" for 2 seconds */
 			if(updates_waited > 60)
 			{
-				display_print("Playing to ", 20, 12);
+				display_print("Playing to ", 16, 12);
 				c = 0x30 + MATCH_SCORE;
 				display_print((char*)&c, 104, 12);
 			}
@@ -147,6 +146,7 @@ enum game_state pong_update_step(uint16_t* analog_values,
     g_left_racket.y = analog_values[0] * (32 - g_left_racket.h) / 1024;
 	g_right_racket.y = analog_values[1] * (32 - g_right_racket.h) / 1024;
 
+	/* Update game state */
 	switch(current_state)
 	{
 		/* Start of match */

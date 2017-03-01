@@ -368,6 +368,32 @@ void display_print(char *s, int x, int y)
     }
 }
 
+/* Brief  : Draws the pong logo bmp to the screen buffer
+ * Author : Rasmus Kallqvist */
+void display_draw_logo(int x0, int y0)
+{
+    int x0 = 0; // should be a parameter
+    int y0 = 0; // should be a parameter
+    int byte;
+    int x, y;
+    int page, col, row;
+    for(page = 0; page < 3; page++) 
+    {
+        for(col = 0; col < 38; col++)
+        {
+            for(row = 0; row < 8; row++)
+            {
+                byte = ponglogo[page*38+col];
+                if( (byte >> row) & 0x1)
+                {
+                    y = page * 8 + row;
+                    x = col;
+                    display_set_pixel(x0+x,y0+y);
+                }
+            }
+        }
+    }
+}
 
 
 /* Helper functions ----------------------------------------------------------*/

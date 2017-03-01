@@ -12,8 +12,8 @@
 #include <pic32mx.h>  /* Declarations of hardware-specific addresses etc */
 #include <math.h>     /* Trigonometric functions */
 #include "font.h"	  /* Defines a bitmap font */
-#include "structs.h"	/* Contains definitions for actor struct */
-
+#include "structs.h"  /* Contains definitions for actor struct */
+#include "logo.h"	  /* Pong logo bitmap */
 
 /* Defines -------------------------------------------------------------------*/
 /* Macros for display control pins */
@@ -57,6 +57,7 @@ void display_draw_actor(struct actor *a);
 void display_draw_dotline (int x0, int len);
 void display_draw_cos(uint32_t period, uint32_t phase);
 void display_cls(void);
+void display_draw_logo(void);
 /* Device drivers */
 void init_display(void);
 void display_update(void);
