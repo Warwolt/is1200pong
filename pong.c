@@ -45,9 +45,15 @@ void pong_setup(void)
 	g_ball.dy = -1;
 }
 
+/* Brief  : Draws a pause splash screen displayed with the game is puased 
+ * Author : Rasmus Kallqvist */
 void pong_pause(void)
 {
-	led_write(0xFF);		
+	/* Draw splash over paused game state */
+	display_draw_rectfill(18,10, (18+88+2),(10+10+3), 0);
+	display_draw_rect    (18,10, (18+88+2),(10+10+3), 1);
+	display_print("game paused", 19, 12);
+	display_update();
 }
 
 /* Brief  : Carries out one iteration of the pong game state with the sequence;
