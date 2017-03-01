@@ -52,8 +52,10 @@ int main(void)
 
 		/* Show logo */
 		display_cls();
-		//display_print("press start", 19, 12);
-		display_draw_logo();
+		display_draw_dotline(0,1);
+		display_draw_dotline(126,1);
+		display_draw_logo(45,0);
+		display_print("press start",20,19+2);
 		display_update();
 	}
 

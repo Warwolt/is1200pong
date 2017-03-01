@@ -57,7 +57,7 @@ void display_draw_actor(struct actor *a);
 void display_draw_dotline (int x0, int len);
 void display_draw_cos(uint32_t period, uint32_t phase);
 void display_cls(void);
-void display_draw_logo(void);
+void display_draw_logo(int x0, int y0);
 /* Device drivers */
 void init_display(void);
 void display_update(void);
