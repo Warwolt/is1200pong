@@ -14,7 +14,7 @@
 #include "structs.h"	/* Contains definitions for actor struct */
 
 /* Defines -------------------------------------------------------------------*/
-#define		MATCH_SCORE			3
+#define		MATCH_SCORE			5
 #define 	PLAYINGFIELD_W		64
 #define 	LEFT_EDGE			(DISPLAY_WIDTH - PLAYINGFIELD_W) / 2
 #define 	RIGHT_EDGE			DISPLAY_WIDTH - PLAYINGFIELD_W / 2
