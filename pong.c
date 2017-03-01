@@ -45,6 +45,11 @@ void pong_setup(void)
 	g_ball.dy = -1;
 }
 
+void pong_pause(void)
+{
+	led_write(0xFF);		
+}
+
 /* Brief  : Carries out one iteration of the pong game state with the sequence;
  * 			draw game state, read inputs, and update game state.
  * Author : Michel Bitar and Rasmus Kallqvist */
@@ -111,8 +116,8 @@ void pong_work(void)
  	display_update();
 
 	/* Input step */
-	analog_values[0] = 1023 - input_get_analog(0);	/* Player 1 */
-	analog_values[1] = 1023 - input_get_analog(0); 	/* Player 2 */
+	analog_values[0] = 1023 - input_get_analog(1);	/* Player 1 */
+	analog_values[1] = 1023 - input_get_analog(2); 	/* Player 2 */
 
 	/* Update step */
 	next_state = pong_update_step(analog_values, current_state);

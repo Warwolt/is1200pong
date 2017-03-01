@@ -39,12 +39,81 @@ void display_set_pixel(uint8_t x, uint8_t y)
     return;
 }
 
+/* Brief  : Same as set pixel, but draws black instead of white ("unset" pixel)
+ * Author : Rasmus Kallqvist */
+void display_unset_pixel(uint8_t x, uint8_t y)
+{
+    uint8_t bit_offset = y % 8;                 /* Offset is the remainder  */
+    uint8_t byte_select = (y - bit_offset) / 8; /* Select is floor function */
 
-/* Brief  : Draws a rectangle with top left corner in (x0,y0) and lower
+    /* Check if valid coordinates */
+    if(x < 0 || x > 127 || y < 0 || y > 31)
+        return;
+
+    /* Copy to screen */
+    screen_content[x][byte_select] &= ~(0x1 << bit_offset);
+
+    return;
+}
+
+
+/* Brief  : Draws a filled rectangle with top left corner in (x0,y0) and lower
  *          right corner in (x1, y1). If either corner is out of the screen
  *          boundrary, only part of the rectangle will be drawn.
  * Author : Rasmus Kallqvist */
-void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
+void display_draw_rect(int8_t x0, int8_t y0, 
+                           int8_t x1, int8_t y1, uint8_t col)
+{
+    uint8_t width = x1 - x0;
+    uint8_t height = y1 - y0;
+    uint8_t i, j;
+
+    /* Check that width and height is non-negative */
+    if(x1 < x0 || y1 < y0)
+        return;
+
+    /* Draw horizontal lines */
+    for(i = x0; (i < (x0+width)) && (i < DISPLAY_WIDTH); i++)    
+    {
+        if(col==1)
+        {
+            /* Draw white */
+            display_set_pixel(i,y0);
+            display_set_pixel(i,y0+height-1);
+        }
+        if(col==0)
+        {
+            /* Draw black */
+            display_unset_pixel(i,y0);
+            display_unset_pixel(i,y0+height-1);            
+        }
+    }
+
+    /* Draw vertical lines */
+    for(i = y0; (i < (y0+height)) && (i < DISPLAY_HEIGHT); i++)
+    {
+        if(col==1)
+        {
+            /* Draw white */
+            display_set_pixel(x0,i);
+            display_set_pixel(x0+width-1,i);
+        }
+        if(col==0)
+        {
+            /* Draw black */
+            display_unset_pixel(x0,i);
+            display_unset_pixel(x0+width-1,i);          
+        }        
+    }
+}
+
+
+/* Brief  : Draws a filled rectangle with top left corner in (x0,y0) and lower
+ *          right corner in (x1, y1). If either corner is out of the screen
+ *          boundrary, only part of the rectangle will be drawn.
+ * Author : Rasmus Kallqvist */
+void display_draw_rectfill(int8_t x0, int8_t y0, 
+                           int8_t x1, int8_t y1, uint8_t col)
 {
     uint8_t width = x1 - x0;
     uint8_t height = y1 - y0;
@@ -59,7 +128,12 @@ void display_draw_rect(int8_t x0, int8_t y0, int8_t x1, int8_t y1)
     {
         for(j = y0; (j < (y0+height)) && (j < DISPLAY_HEIGHT); j++)
         {
-            display_set_pixel(i,j);
+            if(col==1)
+                /* Draw white */
+                display_set_pixel(i,j); 
+            if(col==0)
+                /* Draw black */
+                display_unset_pixel(i,j); 
         }
     }
 }
@@ -74,7 +148,7 @@ void display_draw_actor(struct actor *a)
     int y0 = (int) round(a->y);
     int x1 = (int) round(a->x + a->w);
     int y1 = (int) round(a->y + a->h);
-    display_draw_rect(x0, y0, x1, y1);
+    display_draw_rectfill(x0, y0, x1, y1, 1);
 }
 
 /* Brief  : Draw right and left doted line
@@ -84,7 +158,7 @@ void display_draw_dotline (int x0, int len)
   int i;
 	for (i = 0; i < (32/len); i++)
 	{
-		display_draw_rect(x0,0+(i*len*2),x0+1,0+(i*len*2)+len);
+		display_draw_rectfill(x0,0+(i*len*2),x0+1,0+(i*len*2)+len,1);
 	}
 }
 

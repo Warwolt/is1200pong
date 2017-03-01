@@ -26,9 +26,9 @@ void demo_bouncing_ball(void)
 
 	/* Draw step */
 	display_cls();
-	display_draw_rect(126,0,127,31); // draw left right
-	display_draw_rect(0,0,1,31);	 // draw left line
-	display_draw_rect(x, y, x+width, y+height); // draw ball
+	display_draw_rectfill(126,0,127,31,1); // draw left right
+	display_draw_rectfill(0,0,1,31,1);	 // draw left line
+	display_draw_rectfill(x, y, x+width, y+height, 1); // draw ball
 	display_update();
 	quicksleep(100000);
 
@@ -70,8 +70,8 @@ void demo_ball_struct(void)
 {
 	/* Draw step */
 	display_cls();
-	display_draw_rect(b1.x, b1.y, b1.x+b1.w, b1.y+b1.h);
-	display_draw_rect(b2.x, b2.y, b2.x+b2.w, b2.y+b2.h);
+	display_draw_rectfill(b1.x, b1.y, b1.x+b1.w, b1.y+b1.h, 1);
+	display_draw_rectfill(b2.x, b2.y, b2.x+b2.w, b2.y+b2.h, 1);
 	display_update();
 
 	/* Update step ball1 */
@@ -121,10 +121,10 @@ void demo_moving_ball(void)
 
 	/* Draw step */
 	display_cls();
-	display_draw_rect(126,0,127,31); // draw left right
-	display_draw_rect(0,0,1,31);	 // draw left line
-	display_draw_rect(x, y, x+width, y+height); // draw ball 1
-	display_draw_rect(ax, ay, ax+awidth, ay+aheight); // draw ball2
+	display_draw_rectfill(126,0,127,31,1); // draw left right
+	display_draw_rectfill(0,0,1,31,1);	 // draw left line
+	display_draw_rectfill(x, y, x+width, y+height,1); // draw ball 1
+	display_draw_rectfill(ax, ay, ax+awidth, ay+aheight,1); // draw ball2
 	display_update();
 	quicksleep(100000);
 
@@ -193,4 +193,39 @@ void demo_get_btn(void)
 	/* Remember button states */
 	prev_button_state = button_state;
 
+}
+
+/* Brief  : Demo of display.c function, tests that pixel unset works
+ * Author : Rasmus Kallqvist */
+void demo_unset_pixel(void)
+{
+	int i;
+	display_cls();
+	display_draw_rectfill(0,0,127,32,1); // cover screen white
+	display_draw_rectfill(63,0,79,16,0); // draw black filled square
+	for(i = 0; i<32; i++) // draw some lines 
+	{
+		display_unset_pixel(15,i);		
+		display_unset_pixel(14,i);		
+		display_unset_pixel(i,10);		
+		display_unset_pixel(i,11);		
+		display_unset_pixel(i,13);		
+		display_unset_pixel(i,14);		
+		display_unset_pixel(i,i);		
+		display_unset_pixel(31-i,i);
+	}
+	display_update();
+}
+
+/* Brief  : Demo of display.c function, tests non-filled rectangle drawing
+ * Author : Rasmus Kallqvist */
+void demo_unfilled_rectangle(void)
+{
+	display_cls();
+	display_draw_dotline(0,1);
+	display_draw_rect(2,0,  2+3,0+3,  1);
+	display_draw_rect(2,5,  2+4,5+4,  1);
+	display_draw_rect(2,11, 2+5,11+5, 1);
+	display_draw_rect(2,18, 2+6,18+6, 1);
+	display_update();
 }

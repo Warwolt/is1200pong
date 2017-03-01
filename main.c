@@ -47,6 +47,13 @@ int main(void)
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
 
+		// test
+		demo_unfilled_rectangle();
+	}
+
+	// gap while testing
+
+	while(1){
 		/* Push button toggles pause mode */		
 		button_state = input_get_btn(3);
 		if(button_state & !prev_button_state)
@@ -59,8 +66,6 @@ int main(void)
 			led_write(0xFF);
 		else
 			pong_work();
-
-
 	}
 
 	return 0;
