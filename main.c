@@ -20,6 +20,12 @@ static uint8_t  update_counter; /* Tracks 30 updates per second */
 /* Main */
 int main(void)
 {
+
+	// pause buttons 
+	uint8_t button_state;
+	uint8_t prev_button_state = 0; 
+	uint8_t game_paused = 0;
+
 	/* Low level initialization */
 	init_mcu();
 
@@ -37,12 +43,24 @@ int main(void)
 	/* Run game */
 	while(1)
 	{
-		/* Wait step */
+		/* Clock game at 30 updates per second */
 		while(!timeout_flag);
 		timeout_flag = 0; // reset timeout flag
 
+		/* Push button toggles pause mode */		
+		button_state = input_get_btn(3);
+		if(button_state & !prev_button_state)
+			game_paused = !game_paused;
+		prev_button_state = button_state;
+		
 		/* Iterate game state */
-		pong_work();
+		led_write(0x00);
+		if(!game_paused)
+			led_write(0xFF);
+		else
+			pong_work();
+
+
 	}
 
 	return 0;

@@ -42,6 +42,17 @@ uint16_t input_get_analog(uint8_t pin)
 	return ADC1BUF0;
 }
 
+/* Brief  : Get push button state (Button 3:0)
+ * Author : Rasmus Kallqvist 
+ * Note   : Buttons are indexed 3:0 in code but labeled 4:1 */
+uint8_t input_get_btn(uint8_t btn)
+{
+	uint32_t regval = 0;
+	regval |= (PORTD >> 4) & (0x07 << 1);   /* Read PORTD and get bits 7:5 */
+	regval |= (PORTF & 0x02) >> 1; 			/* Read PORTF and get bit 1 */
+	return (regval >> btn) & 0x1;	
+}
+
 /* 	Brief	: Initialize the ADC peripheral
 	Author	: Original code by Axel Isaksson, edited by Rasmus Kallqvist */
 void init_adc(void)
@@ -66,4 +77,13 @@ void init_adc(void)
 
 	/* Turn on ADC */
 	AD1CON1SET = (0x1 << 15);
+}
+
+/* 	Brief	: Initialize the i/o shield push buttons 
+	Author	: Rasmus Kallqvist */
+void init_btn(void)
+{
+	/* Configure switches and buttonpins as inputs */ 
+	TRISDSET = 0xE << 4; // Buttons 4:2
+	TRISFSET = 0x1; 	 // Button 1
 }

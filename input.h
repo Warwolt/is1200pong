@@ -12,4 +12,6 @@
 
 /* Function prototypes -------------------------------------------------------*/
 uint16_t input_get_analog(uint8_t pin);
+uint8_t input_get_btn(uint8_t btn);
 void init_adc(void);
+void init_btn(void);

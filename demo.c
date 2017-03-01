@@ -170,3 +170,27 @@ void demo_update_counting(void)
 	if(sec==0x3A)
 		sec = 0x30;
 }
+
+/* Brief  : Demo of input.c function, tests that get button function works
+ * Author : Rasmus Kallqvist */
+void demo_get_btn(void)
+{
+	// starting test with only button 3, add 2:0 later
+	static uint8_t led_states;
+	static uint8_t prev_button_state; 
+	uint8_t button_state;
+
+	/* Read buttons */
+	button_state = input_get_btn(3); 
+	
+	/* If pushed, light leds */
+	if(button_state && !prev_button_state)
+		led_states = ~led_states;
+
+	/* Update LEDs */
+	led_write(led_states);
+
+	/* Remember button states */
+	prev_button_state = button_state;
+
+}

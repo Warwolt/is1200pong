@@ -14,6 +14,7 @@ void demo_bouncing_ball(void);
 void demo_ball_struct(void);
 void demo_moving_ball(void);
 void demo_update_counting(void);
+void demo_get_btn(void);
 
 /* Brief  : Test struct for pong ball
 * Author : Michel Bitar */
