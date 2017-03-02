@@ -27,7 +27,7 @@ void pong_setup(void)
 
 	/* Intialize game structs */
 	g_left_racket.w = 3;
-	g_left_racket.h = 9; 
+	g_left_racket.h = 12; 
 	g_left_racket.x = edge_offset;
 	g_left_racket.y = 16 - 1 - (g_left_racket.h / 2);
 
@@ -259,6 +259,8 @@ enum player pong_update_ball(void)
 	// developer test 
 	if(ABS(g_ball.dx) == BALL_MAXSPEED)
 		led_write(0xFF);
+	else
+		led_write(0x00);
 
 	/* Move ball */
 	g_ball.x += g_ball.dx;
